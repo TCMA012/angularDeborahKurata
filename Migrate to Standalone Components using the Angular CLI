@@ -1,0 +1,13 @@
+Migrate to Standalone Components using the Angular CLI
+Deborah Kurata
+Jun 1, 2023  #demo #angular #bestpractices
+Let's use the Angular CLI to automatically migrate an existing Angular application to standalone components!
+
+Standalone components were provided in Angular version 14 as a developer preview. In Angular v15 standalone components were released as a stable feature. In version 15.2, Angular provided a schematic to help migrate an existing project to standalone.
+
+What's a schematic? A schematic provides the code generation feature behind the Angular CLI including: ng generate, ng add, and ng update. Any time you use the Angular CLI to generate some code, the instructions for how that code is generated is provided in a schematic.
+
+In this video, I walk you through the steps of migrating an existing application to standalone components using the Angular CLI. And I detail the changes made at each point in the process.
+
+Sample code:
+https://github.com/DeborahK/Angular-GettingStarted

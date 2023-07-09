@@ -1,0 +1,269 @@
+Hide Your Properties in Angular: # vs private
+Hide Your Properties in Angular # vs private
+https://www.youtube.com/watch?v=487iCAnhxCM
+Deborah Kurata
+Jun 20, 2023
+#angular #bestpractices #angulartutorial
+Have you noticed a hash symbol showing up in Angular code samples? If not, you may see it soon! What is the purpose of the # and when should you use it?
+
+https://www.typescriptlang.org/docs/handbook/2/classes.html#private
+
+Transcript
+JavaScript private class members (#)
+hey have you noticed a hash symbol
+showing up an angular code examples if
+not you may see it soon what is the
+purpose of the hash and when should you
+use it the half simple was recently
+added to JavaScript to denote private
+class properties making a class variable
+private means that the variable can only
+be accessed within its class that allows
+us to encapsulate data we only want to
+access within a service but don't we
+already have a private accessor for our
+class fields yep then why do we need the
+new hash syntax let's take a look at the
+private accessor first then examine the
+hash syntax and why it is a better
+choice in our angular applications
+
+The sample application
+here I have a sample application it has
+a product template that currently
+displays a simple text string
+the product component and the product
+service don't yet have any code
+
+let's run the application
+and we see our text string I'll move the
+window so vs code and the browser are
+side by side
+and I'll close Explorer for more space
+
+The danger of public class properties
+let's create a property in our service
+and attempt to access it from our
+component
+
+we'll create a property for the URL that
+we'll use to get our product data and a
+product's property to hold our retrieved
+array of products
+
+by default variables we Define in a
+class are public meaning that any other
+code in our application can access them
+so we should be able to access these
+variables from our component 
+let's
+create a method to log the URL log URL
+and 
+in the body we put 
+console.log URL
+for the first parameter and this dot
+product URL then we'll call that method
+in the Constructor this.log URL
+then in the product component
+first we inject the service using the
+new 
+inject function instead of the
+Constructor and add the appropriate
+import statement
+let's add a Constructor and because by
+default any property or method of a
+class is public we can change the url
+that we've defined in the service for
+confirmation we'll call the service
+method to log the URL
+in the browser I'll open the developer
+tools we first see the service lock the
+URL then we see the components changed
+URL  
+that's not good our component
+was able to change the url defined in
+our service 
+going back to the service
+let's use the private accessibility
+TypeScript's private accessibility feature
+keyword the 
+private accessibility is a
+feature of typescript that marks a class
+property or method such that it is only
+accessible from within this class not
+any other component or service we add
+private in front of the variable name
+now we see an 
+error property product URL
+is private and only accessible within
+class product service
+great
+
+going back to the component
+let's comment out the line that is
+causing the issue and we are back
+working again going back to the service
+by adding the typescript 
+private
+accessibility keyword in front of our
+variable the variable is only accessible
+from this service but going back to the
+component what if we try to do something
+Accessing variables with private accessibility at runtime
+like this let's Loop through each index
+in our service for let I in this dot
+product service
+
+console.log('properties:', i);
+
+this code Loops through each index in
+our service
+
+looking at the browser console it
+displays the names of our service
+properties including our private
+property we can still Loop through the
+class instance and see our private
+properties
+we can also access the object's Keys
+like this
+
+console.log('keys:', Object.keys(this.productService));
+
+and we
+pass in this.product service
+this displays an array of our properties
+again including our private property
+
+now that we can see the name of the
+private property we can use it to 
+update
+that private property even intellisense
+listed our private property
+and oops our private property still
+aren't so private
+why is that it's because the 
+private
+keyword is part of typescript 
+not
+JavaScript that means that the private
+accessibility is only enforced during
+development as part of type checking and
+during compilation we'll see
+notifications during development and
+compilation that we can't access the
+private property
+but when our typescript code is
+transpiled to JavaScript and executed
+the private keyword is gone 
+that means
+that JavaScript runtime constructs such
+as our for Loop or our simple
+property lookup can still access a
+property or method defined with a
+private keyword in other words the
+component can access the private
+properties in our service at runtime
+yikes and
+ that's where the hash feature
+comes in 
+
+recently JavaScript added
+JavaScript's private class members (#)
+private class properties and methods
+denoted with a hash since the 
+hash is
+part of JavaScript it denotes our
+properties and methods as private during
+development compilation and at runtime
+
+let's go back to our service and change
+the private keyword to a hash and remove
+the space
+the hash is a prefix on the variable
+itself and becomes part of the variable
+name so we need to change it when we
+access it here as well going back to the
+component we see an error when we access
+the property property product URL does
+not exist on type product service did
+you mean hash product URL well yes we
+did let's try changing our lookup to
+include a hash here as well but the
+property is still not found property
+hash product URL does not exist on 
+type
+product service it is now correctly
+hidden from our component let's comment
+out that line notice that our Loop here
+finds the products property but not the
+private URL property the object.keys
+also only finds the products property
+our private URL property is private and
+hidden correctly encapsulated in our
+service
+but what about private properties in our
+component 
+
+let's add a pageTitle
+Private properties in components
+property to the product component and
+display that property in the template
+we'll add an H1 element
+and bind to the 
+pageTitle 
+property and
+we see the heading in the browser going
+back to the component 
+
+let's add the
+private keyword and we see an error 
+a
+template cannot access a private
+property 
+if we change it to a hash and
+change the variable name in the template
+we see a different error 
+private
+identifiers are not supported 
+I'll undo
+this change and remove the hash from the
+property in the component bottom line
+
+use the hash for private members in a
+component only if you don't plan to
+access them in a template going back to
+the product service
+Wrap Up
+as angular developers we've been using
+the typescript private accessibility
+keyword to make Properties or methods
+private but that only performs type
+checking at development and compile time
+not runtime now we can use the
+
+JavaScript private class property syntax
+denoted with the hash symbol to make
+private properties and methods truly
+private
+
+
+
+
+I use the Angular Language Service extension. And I sometimes enable the GitHub Copilot extension. That's all I use.
+
+
+It may be useful for encapsulation ... especially for a large project with lots of team members. No one may try to do something nefariously, but someone may try to access a property that is being more carefully managed in the service. (But you could argue that `private` would be good enough for that.)
+
+From what I've seen, the TypeScript team sees the use cases for both `private` and `#`. So I don't think there is the intention of replacing one with the other at compile time.
+
+See this TypeScript documentation for more information: 
+https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#ecmascript-private-fields 
+
+
+
+i still think "private readonly" is still the way to go, it's really readable and does the same thing except at runtime
+
+Makes sense if you aren't worried about the values getting updated at runtime.
+A seemingly random # vs "private readonly" ... the "private readonly" would definitely win on readability! 
+

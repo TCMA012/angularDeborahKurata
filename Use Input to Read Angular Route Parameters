@@ -1,0 +1,297 @@
+https://www.youtube.com/watch?v=Nuwn5uY8ETw
+Use @Input to Read Angular Route Parameters
+Deborah Kurata
+Jul 7, 2023  #angular #bestpractices #angulartutorial
+One of the new features in Angular v16 is automatic route parameter mapping using the Input decorator.
+It means we can use an input property to automatically read route parameters, instead of using the Activated Route service. This gives us a shorter and easier syntax. 
+
+let's walk through an explanation and an example.
+
+Content
+00:00 Route parameter mapping using the input decorator
+00:44 How routing works
+03:31 Routing in action (Activated Route)
+04:14 Reading route parameters (Activated Route)
+05:28 Enabling route parameter mapping using the Input decorator
+06:09 Reading route parameters (@Input)
+07:20 Routing in action (@Input)
+07:33 Why use route parameters? Deep Linking!
+08:40 Wrap Up
+
+Transcript
+one of the new features in angular V16 is 
+automatic route parameter mapping
+using the input decorator   
+we may have code that looks
+like this
+here we 
+inject the activated route then
+get the route parameter from that
+activated route snapshot dotting down
+into its properties in angular V16 and
+later we can instead write code like
+this
+here we use an input property to find
+the input decorator much shorter
+and easier 
+
+here is a
+simplified version of my Acme product
+management or APM application the app
+component HTML file provides a menu
+displayed as a navbar the menu options
+use the router link directive to route
+to the features of the application the
+home option links to the welcome route
+the product list option links to the
+products route at the bottom we see the
+router outlet directive the router
+outlet defines the location on the page
+to display the routed content instead of
+the two tags I have here 
+
+let's use a
+self-closing tag 
+
+self-closing tags were
+new in angular v15.1 
+
+so instead of the two separate
+tags we can specify a single
+self-closing tag like this
+<router-outlet/>
+
+ any routed
+components will appear in this part of
+the page
+looking at the
+app.routes.ts
+
+we see the route
+configuration the welcome route displays
+the welcome component in the router
+outlet the empty path redirects to the
+welcome route so if the user accesses
+the site tare directed to the
+welcome page
+the 
+** 
+is the Wild Card
+route 
+anything that doesn't match a
+prior route will match this route and
+redirect to the welcome route this could
+instead route to a page not found
+component the products path is lazy
+loading the product routes as defined in
+this constant 
+I'll right click and
+select go to definition and here we have
+the product routes if there is nothing
+more on the product's route the product
+list component is displayed in the
+router outlet
+when routing to the product detail
+component we want to pass the id of the
+product whose detail we want to display
+we do that by adding a route parameter
+to the URL we identify a route parameter
+with a colon before the parameter name
+:id
+anywhere we reference this parameter
+we'll use this name
+so if there is a value after products in
+the route angular routes to the product
+detail component and passes along that
+value as the id parameter where do we
+set this parameter 
+
+let's open the
+product list component HTML file here is
+an 
+ngFor 
+that displays each of our
+products in a table the First Column of
+each row displays the product name it
+uses the router link directive to define
+the route parameter in this case the id
+of the product so this id is appended to
+the end of the URL
+
+I'll run it
+here we see the welcome page 
+I'll click
+product list the URL changes and the
+product list component displays in the
+router outlet
+notice that each product name is a link
+if I click on a product the id of the
+selected product is appended to the URL
+and passed the product detail component
+the product details and appears in the
+router outlet and displays the details
+for the defined product
+
+let's go back and do that again notice
+how the URL changes and the page
+displays the appropriate product details
+how does the product detail component
+know which product to display it reads
+the parameter from the URL 
+let's go back
+to the code
+the product detail component reads the
+parameter from the URL to determine
+which product to display
+one way to read the URL is using
+angular's activated route service here
+we first inject the activated route
+service using the new 
+inject keyword
+inject(ActivatedRoute)
+
+alternatively you could use the
+Constructor to inject this service
+dependency
+when the detail page first loads we'll
+use the onanet lifecycle hook to read
+the parameter we use the activated route
+service access the snapshots param map
+and call get passing in the name of the
+parameter to get this name must match
+the name we defined in the product route
+configuration
+we see here that the parameter name is
+id
+
+going back to the component the get
+returns a string or null if the
+parameter is not found if we are able to
+read an id from the route we set that id
+into the product Detail Service the
+product details service then finds the
+product with the defined id
+now 
+let's change this code to use the
+input decorator instead the first thing
+we want to do and the step I so often
+forget is to let angular know that we
+want to use the input decorator to read
+route parameters we do that in the
+application configuration I'm using 
+Standalone component
+bootstrapping here after the routes 
+I'll
+add 
+withComponentInputBinding
+
+ and add
+the required import if you are using
+classic bootstrapping you'd instead set
+binding component inputs to true in the
+router module for root like this
+
+we have now enabled the automatic route
+parameter mapping using the input
+property 
+going back to the product
+detail component we add an input
+property using the input decorator
+@Input() id = '';
+
+ and
+add the required import statement
+
+I'll name the input property the same as
+the Rel parameter name which is id while parameters are
+strings so 
+I'll set the initial value to
+an empty string
+if I wanted to use a different property
+name here such as 
+product id I can but I
+then need to pass the route parameter
+name to the input property like this
+@Input('id') productId = '';
+
+that way it can match up the route
+parameter to the appropriate input
+property but 
+let's keep it simple and
+name the property the same as the route
+parameter 
+
+I'll undo this last change by
+using the input property we no longer
+need the activated route 
+I'll delete it
+here
+and here
+then 
+I'll change id to this .id here
+and here are such selected product id
+method is expecting a number so 
+let's
+add the number Constructor around the id
+to convert it to a number
+
+I'll bring back up the browser and pick
+a product and it still works it's
+correctly displaying the data for the
+product I selected click back and pick
+another one  it works one question I
+always like to ask myself is why in this
+case 
+
+why do we need route parameters at
+all couldn't the product list component
+store the id in a property of a service
+then the product detail component could
+read that id from the service instead of
+from the route 
+
+one key reason is that by
+appending the id to the URL we get 
+deep
+linking 
+
+Deep linking allows the user to
+save or share the URL then use that URL
+to automatically directly link to a
+specific product
+
+say that your birthday is coming up and
+you send a friend an Amazon link that
+link wouldn't be useful if it didn't
+navigate directly to a specific product
+
+let's try it with this example 
+I'll copy
+this link then click home to go back to
+the welcome page
+
+I'll paste the link
+and it takes me directly to the defined
+product 
+ 
+use deep linking anytime
+you want to allow your users to save or
+send direct links 
+let's go back to the
+code
+starting with angular V16 we can use an
+input property to find what the input
+decorator to access route parameters
+this gives us a shorter and easier
+syntax we 
+no longer need to work with
+angular's activated route service
+but don't forget to enable this
+functionality if you are using
+Standalone bootstrapping add 
+withComponentInputBinding
+to provide
+router 
+for classic bootstrapping set
+binding component inputs to true in the
+router module .for root call

@@ -1,0 +1,465 @@
+Error Handling with Observables
+Deborah Kurata
+Apr 28, 2023 
+When we issue an http request to get or update data, there is always the chance that something will go wrong! The item the user requested isn't found, the updated data doesn't pass the server-side validation, our boss hasn't paid the electric bill and our server is down ...
+We look at several scenarios: Catch and Rethrow, Catch and Continue, Retry on Error, and Action Streams
+
+https://github.com/DeborahK/Angular-Posts
+
+Content
+00:00 Why error handling?
+00:24 Options for handling http errors
+00:59 Catch and Rethrow (service)
+01:54 Observable of never
+03:30 Catch and Rethrow (component)
+03:44 EMPTY
+03:57 Result of Catch and Rethrow
+04:04 Catch and Continue (service)
+06:06 Getting a message to the template
+06:35 Result of Catch and Continue
+06:44 Retry on Error
+07:27 RetryWhen
+08:24 Action streams
+09:54 Wrapping up
+
+Transcript
+Why error handling?
+ when we issue an HTTP request to get
+or update data there is always the
+chance that something will go wrong the
+item the user requested isn't found the
+updated data doesn't pass the server
+side validation or our boss hasn't paid
+the electric bill and our server is down
+in any of these cases we'd want some
+error handling what are our options well
+
+Options for handling http errors
+
+in the service
+
+ignore the error
+and simply 
+catch the error in the
+component
+
+
+catch the error
+ and
+re-throw
+ which should 
+return a valid
+observable then 
+catch the error
+again in the component
+ or 
+
+
+catch the error and continue
+ it must return a
+valid observable of the appropriate type
+in this last case it's a bit 
+more
+difficult to get an error message to the
+UI
+ because we're not catching the error
+in the UI 
+
+
+let's take a deeper look at
+these last two so our first scenario is
+
+Catch and Rethrow (service)
+
+Catch and rethrow
+here we 
+catch the error we're using an
+observable operator for catching the
+error on the observable
+it takes in an observable that might
+emit an error notification and 
+if there
+is 
+no error it 
+outputs the input
+observable basically a 
+no op
+
+if there is
+an error it 
+outputs a 
+replacement
+observable
+
+the Callback function that's called here
+handles the error it 
+returns that
+replacement observable and 
+optionally
+throws an error so to 
+rethrow we use
+this handle error method it takes in the
+caught error
+it then 
+creates the replacement
+observable that emits an error
+notification using 
+throwError
+here 
+
+we return an observable of never
+
+an observable of never is an
+Observable of never
+observable that 
+emits no items to The
+Observer and 
+never completes so it emits
+neither values nor the completion
+notification 
+
+it's good for returning an
+observable when an error occurs
+ so we
+use observable of never when we 
+emit an
+error notification and it helps 
+retain
+strong typing
+
+this is what our code would look
+like here we're using a 
+declarative
+approach to 
+Define our HTTP get and
+assign it to a variable
+
+here we have our 
+catchError 
+if an error
+occurs we return an observable of Never
+
+As the 
+users$ if we instead used
+observable void or 
+observable of null or
+observable of undefined
+
+when we hovered over
+users$ we
+would see that it would be an observable
+of void or user array or null or user
+array or undefined or user array and 
+we
+don't really want it to be mucking with
+our strong typing by using observable of
+never when we hover over users$ it
+doesn't change our return data type it's
+still an observable of user array
+for the catch and rethrow scenario in
+our service we declare our users$
+which issues our HTTP get request 
+in the
+pipeline we use catchError to catch the
+error then we handle the error and then
+throw in error returning and observable of
+never
+
+in the component we then 
+catch the
+Catch and Rethrow (component)
+rethrown error here 
+set a local
+variable that 
+bind in our
+template to display our error message
+and we return EMPTY 
+  
+EMPTY is
+a simple observable that 
+emits no items
+and 
+immediately completes
+ it's a
+
+constant
+ and it's 
+great for error
+handling when we don't have an item to
+emit like in the case we had an error
+Result of Catch and Rethrow
+here's the result so we see our message
+though we might want a better message
+here the other scenario is to catch and
+continue
+
+
+
+Catch and Continue (service)
+
+for that we'll look at another example
+in this case we get all the users so
+here are the first two and we could
+scroll down and see all the others and
+each one has their task list here a list
+of their Latin to Do's to build this
+page we need to get the data for all the
+users then 
+
+we get the related data for
+each user we get their to-do's so we put
+them into a 
+single structure as user
+data 
+
+where do we put our catchError in
+this case ?
+
+do we put it here in the
+pipeline of the inner observable?
+the
+problem with that is it won't catch any
+errors from our outer observable
+
+maybe we put it here in the outer
+observable that will catch errors from
+the inner and outer observable pipelines
+but it stops the inner pipeline 
+
+maybe we
+do both but what's wrong with this error
+handling as I alluded to a little bit
+recall when an observable generates an
+error 
+it stops
+ and it 
+won't emit any
+further so if there's an error getting
+the to-do's for one of the users 
+none of
+the user's data is returned and 
+that's
+not what we want 
+
+we'd prefer that if an
+error occurred then we 
+just continue on
+for the next user
+so we want to catch and continue we do
+that by 
+returning a replacement
+observable with the user and in this
+case the empty to Do's 
+
+do you see any
+issues with this approach?
+
+one issue is that the template has
+no way to know whether the empty to Do's
+are because 
+the user actually has no to
+Do's or 
+if an error occurred and the
+system couldn't get those to do's and in
+real applications it's often important
+to understand 
+the difference between 
+no
+data
+ and  
+I couldn't get the data
+
+what do we do then?
+
+
+Getting a message to the template
+
+one option for 
+getting a message to the
+UI is to 
+add a property to our interface
+
+here our user data was comprised of
+our user and their to-do's we could also
+add a message that would hold our error
+message we then 
+set the property so here
+in our 
+catchError we're returning an
+observable with the user the empty array
+of to-do's and a message
+we can then bind to that message in the
+template and here's the result
+
+Result of Catch and Continue
+couldn't get the to-do's for Leanne so
+we see a message but it continues and
+gets all of the other users
+
+
+
+Retry on Error
+let's look at another scenario let's say
+that we want to retry I don't know if
+this has ever happened to you but
+frequently I start ordering my Starbucks
+as I'm leaving the house and about
+halfway down the street I lose my
+connectivity and luckily I don't lose my
+order 
+the Starbucks app must be smart
+enough to retry so here is how we would
+get our code to retry
+we simply add the 
+
+retry 
+operator and we
+specify 
+how many times we wanted to
+retry
+
+
+retry(3)
+if an error occurs and it
+can't get the data it will 
+retry three times 
+before it falls into the 
+catchError
+ but sometimes we want a little
+fancier of a retry then use retry
+
+RetryWhen
+when 
+retryWhen
+ is quite a bit more
+complicated than just the retry so
+instead of just passing in the number of
+times you want to retry you 
+pass in all
+of the code defining exactly how you
+want it to retry 
+
+first we use a scan to
+accumulate a counter because we want to
+accumulate how many times we're retrying
+
+in this particular example after three
+tries it throws an error for three or
+less tries it increases the accumulator
+than it does the 
+delayWhen
+ and tries
+again the 
+delayWhen uses an increasing
+delay between the retries notice we're
+taking the 
+value type times 500 so every
+time through we increase the delay by a
+half a second this is called 
+
+exponential backoff
+ so it keeps retrying waiting a
+little longer each time until it hits
+more than three retries
+
+
+
+Action streams
+
+for our last scenario let's look at
+action streams
+in this particular example our 
+action is
+that a 
+user selects something from this
+drop down
+ we then want to react to that
+action by displaying the to Do's for
+that user 
+
+here's our action stream we
+create a Subject then 
+Define the
+read-only part of that Subject as an
+observable
+we then 
+emit when the action occurs so
+when the user selects something from the
+drop down we issue a 
+next
+ on that
+Subject
+
+then here is our reaction the user
+selected action 
+emits when a user is
+selected and we 
+get the to-do's for that
+selected user 
+
+but what's wrong with our
+exception handling here?
+
+if we catch the error and rethrow our
+entire action stream stops recall that
+when an observable generates an error it
+stops
+ and it 
+won't emit any further that
+means if there's any error in getting
+any of these to Do's 
+the next time the
+user goes to pick another user from the
+list this won't react and it won't get
+that data 
+we don't want that to happen
+so in this case we want to 
+catch and
+continue so here we 
+return an 
+of([])
+empty
+array
+
+if we again want a message to
+appear in the UI that we couldn't get
+the to-do's for that user we could again
+use a 
+wrapper interface like we looked
+at earlier
+
+
+Wrapping up
+so to wrap up catch the error in the
+service using 
+catchError 
+if you need to
+catch and continue 
+return a valid
+observable normally 
+initialized or 
+empty
+data 
+
+if you need a message in the
+template use 
+a wrapper to provide it
+with the emitted data
+
+
+
+Comments
+
+retryWhen deprecated. 
+use the retry operator with a config object.
+retry({count: 3, delay: 1000})
+
+=
+
+I have a case there user submits a form via http post request and if this request fails stream completes and user can't submit form again. In implementation I used your approach with Subject + asObservable + switchMap. I tried catch + re throw + Observable<never>, this approach help me in a situation, which forces me to transform stream in catchError part with returning another type in error case, and in outer stream in tap I used type guards to handle two different types (for success and error result). Can you help me with scenario in which user can continue to change form data and submit it again even if http error occurs? Can we somehow combine approach with observable `never` and does not re throwError?
+
+I'll look at your scenario when i return
+
+
+
+

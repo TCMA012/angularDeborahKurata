@@ -1,0 +1,235 @@
+Ignore Files when Searching in VS Code
+Deborah Kurata
+Jun 29, 2023  #visualstudiocode #demo #vscode
+Starting with version 13, Angular caches build files in a cache folder under the .angular folder. These files don't impact much ... except in some cases when trying to search your files with VS Code.
+
+Let's look at how we can ignore the files in the cache folder (or any folder) when using the VS Code search feature.
+
+Content
+00:00 Angular cache files and VS Code search
+01:11 Exclude folders using the Search window
+02:00 Exclude folders from Search with User settings
+03:20 Exclude folders from Explorer with User settings
+04:20 Exclude folders from Search using .gitignore
+06:19 Wrap Up
+
+Links
+VS Code Issue for "Use Ignore Files" bug: 
+https://github.com/microsoft/vscode/issues/182958
+
+#angular #bestpractices #angulartutorial #demo 
+#vscode #visualstudiocode #gitignore #.gitignore
+
+2 Comments
+
+Transcript
+Angular cache files and VS Code search
+I use VS Code for
+most of my editing especially when
+building angular applications
+starting with version 13 angular caches
+build files in a cache folder under the
+.angular folder
+ you can see the
+gazillion of these cache files here
+these files don't impact much except in
+some cases when trying to search with VS Code 
+I'll close this folder and open the
+search window then search for
+console.log
+my look at all of these results in
+the cache build files if I scroll all
+the way down I finally see the one place
+I'm actually using console.log in my
+code not nice at all let's look
+at how we can 
+ignore the files in the
+cache folder or any folder when
+using VS Code
+
+there are several options for how to
+ignore or exclude files and folders when
+searching 
+
+Exclude folders using the Search window
+one option is to 
+click the ...
+
+here then we can type in the
+folders or 
+files to exclude 
+
+I'll type
+**/.angular
+
+ to
+mean exclude all .angular subfolders
+under the current project folder
+that's much better now we see only the
+one place that 
+console.log 
+appears in
+the code 
+if we close and reopen the
+search our selection stays for this
+project 
+but if we would open another
+angular project we'd lose our selection
+so while this option works we'll have to
+reset it for every project
+
+I'll delete the entry in the files to
+exclude text box as expected we again
+see the build cache files in our search
+
+Exclude folders from Search with User settings
+let's instead use the VS Code user
+settings to always exclude folders or
+files for the current user that's us
+
+click the manage icon and 
+select
+settings
+then search for exclude
+
+scroll down to 
+Search: Exclude
+
+let's add a pattern
+we want to exclude 
+**/.angular
+
+click ok to save
+going back to our search window I'll
+click on the search text box and press
+enter to re-execute our search
+and it shows our one place that we use
+console.log 
+correctly excluding the
+cached files nice
+
+now we have a way to exclude these files
+in all of our projects
+notice that if we click on explore we
+still see the 
+.angular folder here
+
+can we exclude the cache files from here
+as well yes we can
+
+to try it 
+
+let's remove the setting we
+just added I'll click on the pattern and
+click the X to remove it
+going back to the search window and
+pressing enter to re-execute the search
+we again see the cached files in our
+search results
+
+Exclude folders from Explorer with User settings
+
+now let's exclude folders and files from
+Explorer in the settings window scroll
+up to 
+Files: Exclude 
+
+we'll add our
+pattern here
+click add pattern type in the pattern
+for the folders or files to exclude
+* */.angular 
+
+and
+click ok
+click on explore and we no longer see
+the .angular folder
+going back to the search window I'll
+press enter to re-execute the search and
+notice that it excludes the files not
+only from Explorer but also from the
+search sweet
+
+but let's try one more thing we'll start
+by removing the setting we just added
+in the 
+settings window 
+I'll click on the
+pattern and click the X to remove it in
+the search window 
+I'll press enter and
+we again see all of the extra files
+
+
+
+Exclude folders from Search using .gitignore
+now we're ready for one last option open
+Explorer and click on 
+.gitignore 
+to open
+it
+this file defines the list of folders
+and files that should be excluded when
+checking the project in to get a version
+control system this file is created by
+the angular CLI
+note that if you created your project
+without the angular CLI you may not have
+this file
+
+scrolling down under the miscellaneous
+section notice that it already excludes
+the angular build cache files wouldn't
+it be nice if we could just tell VS Code
+to use this file during search
+search could then ignore the same files
+that we ignore when working with git
+
+close this file 
+open the search window
+and go back to settings
+search for ignore
+here we see the option search use ignore
+files you may already have this option
+checked as it is on by default
+I have mine on
+wait what if this is on why isn't the
+search ignoring our .angular build
+files it should be ignoring all of the
+folders and files listed on our .git
+ignore file
+it turns out that as of this recording
+there's a bug in VS Code that prevents
+this feature from working if there is
+no .git folder in the project folder in
+this project I'm working with there is
+no .git folder so this feature doesn't
+work
+see the video notes for a link to the VS Code issue for this bug
+so although this is the easiest way to
+exclude gitignore folder and files from
+search and as on by default it's not
+currently working if you have no .git
+folder for the project
+
+Wrap Up
+we covered several options that do
+currently work
+use the ...to exclude a folder
+or set of files as needed
+use the user settings files exclude
+feature to exclude the files from the
+project which also excludes them from
+the search
+or use the user settings search exclude
+feature to exclude specific files and
+folders when searching
+I'll select this one and enter our
+pattern again
+**/.angular
+
+now my search is much more
+user friendly
+I want to thank my Twitter friends
+for help in finding these useful VS Code
+features

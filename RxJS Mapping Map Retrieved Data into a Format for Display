@@ -1,0 +1,115 @@
+0:00 / 2:37
+RxJS Mapping Map Retrieved Data into a Format for Display
+RxJS Mapping: Map Retrieved Data into a Format for Display
+Deborah Kurata
+Jan 17, 2023  RxJS Quick Takes
+Use RxJS mapping to map retrieved data into a format you need for display.
+
+In Part 1 we learn the basic difference between first order and higher-order mapping. Then we examine several examples for effective use of RxJS mapping to map retrieved data into a format you need for display.
+
+In Part 2 we review the difference between first order and higher-order mapping. Then examine higher-order mapping and the higher-order mapping operators.
+
+00:00 First order vs higher-order mapping
+00:44 Mapping (first order)
+00:53 Mapping an http response to a usable format
+01:25 Adding properties to retrieved data using map
+02:06 Building a string title from retrieved data using map
+
+Transcript
+First order vs higher-order mapping
+so first order versus higher order
+mapping first order mapping transforms
+each emitted value and emits the result
+so something like this we get an emitted
+value into X we multiply it by two and
+we get out the result
+higher order mapping transforms each
+emitted item into another observable
+so here we're taking an ID so we're
+getting a stream with that's going to
+pre providing us an ID and we're
+transforming that using the HTTP get to
+go retrieve more data which is going to
+give us back another observable
+so that's the key difference between
+first order and higher order mapping
+
+
+Mapping (first order)
+let's dive into that a little bit more
+
+starting with mapping which is first
+order
+no not not that first order
+
+Mapping an http response to a usable format
+um so when we issue an HTTP get request
+to get some data from a server we might
+end up with something like this on the
+left where we're getting a data property
+with our array of data but what we
+really want is just the array of data it
+makes it easier to bind to and to work
+with so we can use a map for that we're
+going to use an HTTP get to get the data
+and then just 
+map 
+the response we're
+getting which is the data on the left
+there and we only want the data
+properties values which is our array
+
+Adding properties to retrieved data using map
+another example of math say we're using
+HTTP get request to get one single
+product we want to add a property to
+that product so we can use 
+map
+ for that
+as well we're getting the data with an
+HTTP get and then we're mapping our
+product into a copy of the product using
+the 
+spread operator
+ and then adding the
+additional property so we make a copy of
+it to ensure
+that our original product is remains
+immutable
+and then 
+we use 
+as Product
+ to ensure
+that what comes out of our stream is an
+observable product
+
+product$ = this.http.get<Product>(this.url)
+    .pipe(
+    map(p => ({ ...p,
+                profit: p.price - p.cost}) as Product),
+    catchError(this.handleError)
+    );
+
+
+
+Building a string title from retrieved data using map
+one last example of how to use the 
+map
+here again we have our product on the
+left that we've retrieved and we want to
+map
+ it to a string for a display on the
+top of the page so how do we do that we
+can take our stream that contained our
+product and we can 
+pipe 
+it through a
+simple operation to convert it to a
+string using the 
+ternary operator
+
+pageTitle$ = this.product$
+    .pipe(
+    map((p: Product) =>
+        p ? `Product Detail for: ${p.productName}` : null)
+    );

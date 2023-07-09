@@ -1,0 +1,413 @@
+Routing and Lazy Loading with Standalone Components
+Deborah Kurata
+4K subscribers
+827 views  Jun 6, 2023  #demo #angular #bestpractices
+Now that we can build an application using standalone components, we don't need Angular modules (also called NgModules). 
+
+But then ... where do we put our routes?
+
+Let's look at how to do routing, including lazy loading, without an NgModule.
+
+To create an application without NgModules, we add the list of routes to the bootstrapApplication configuration. In the providers array, we specify provideRouter and pass in our routes.
+
+To lazy load a set of child routes, use loadChildren.
+
+To lazy load an individual component, use loadComponent.
+
+Links
+Simplify with Angular Standalone Components:
+
+Migrating to Standalone Components with Angular CLI:
+
+Sample code:
+https://github.com/DeborahK/Angular-GettingStarted
+
+Content
+00:00 Routing + Lazy Loading with Standalone Components
+00:20 Routing with NgModules (App module)
+00:58 Routing to child routes with NgModules (feature modules)
+01:16 Running to see the routes
+01:53 Migrating components to standalone
+02:09 Routing without NgModules
+03:03 Child Routes without NgModules: provideRouter
+04:04 Child Routes without NgModules: product.routes.ts
+05:27 Lazy loading child routes without NgModules: loadChildren
+07:51 Lazy loading standalone components without NgModules:  loadComponent
+10:03 Removing Feature NgModules
+10:34 Wrap Up
+
+Transcript
+Routing + Lazy Loading with Standalone Components
+
+now that we can build an application
+using Standalone components we don't
+need angular modules also called 
+NgModule
+but then where do we put our routes
+let's look at how to do routing
+including lazy loading without 
+nng
+module 
+
+
+Routing with NgModules (App module)
+when using NgModules we add the
+routes to our NgModule Imports array in
+the app module we Define router module
+for root for our primary application
+routes in this example we Define a route
+to our welcome page and 
+if the user
+accesses our site without a route it
+redirects to that welcome page 
+we also
+have a 
+wildcard route denoted with 
+two
+asterisks to catch any invalid route we
+could display an error page but in this
+example any 
+unrecognized route is
+redirected to the welcome page 
+
+
+Routing to child routes with NgModules (feature modules)
+if you
+have an application of any size you may
+also have feature modules with child
+routes in this example we have a product
+module for our product feature routes
+here we see the feature routes passed in
+to router module for child 
+
+
+Running to see the routes
+let's run the
+application to see the routes in action
+here is our welcome page if we remove
+the welcome part of the URL it redirects
+to the welcome route and 
+if we change
+the url to something else like Acme it
+again 
+redirects to the welcome route
+when we click on product list it
+navigates to the products route 
+clicking
+on a specific product navigates to the
+products route with a number indicating
+the ID of the product to display
+clicking back returns us to the main
+products route 
+let's go back to the code
+
+
+Migrating components to standalone
+if we want to build an application
+without an app module we first migrate
+our components to Standalone we did that
+in an earlier video see the link to that
+video in the upper right corner now or
+in this video's notes 
+
+
+Routing without NgModules
+the angular
+Standalone migration schematic moved our
+routes to the configuration options as
+part of our application bootstrapping in
+main.ts 
+if we don't want to use the
+migration tool we can cut the routes
+from the app module and paste them here
+ourselves we use 
+bootstrapApplication
+to start up our application with the
+Standalone app component we then provide
+a set of configuration options 
+I have
+another video that talks more about this
+bootstrapping process with Standalone
+check it out for more information on
+bootstrapping 
+
+in this video we focus on
+routing as part of the bootstrap
+providers 
+array 
+we include 
+provideRouter 
+and pass in our 
+array of routes
+we could do the same thing with our
+feature child routes 
+
+
+Child Routes without NgModules: provideRouter
+I'll open the
+product feature module to the side and
+close Explorer for more space
+our products route navigates to the
+product list component and the products
+route with an ID parameter routes to the
+product detail component
+the angular Standalone migration
+schematic did not delete this NgModule
+because it contains our feature routes we
+could cut them from our feature module
+and paste them into 
+main.ts 
+in the array
+passed into provide router we'd insert
+them above the empty and wild card
+routes 
+notice that our 
+main.ts 
+now needs
+to import each of our product components
+and our guard that means that all of
+these components and the guard will be
+loaded when the application starts up
+that could slow down our loading process
+and delay the time before the user sees
+our first page 
+we don't want that 
+I'll
+undo that change to 
+main.ts and close
+the product module
+
+
+Child Routes without NgModules: product.routes.ts
+let's instead put the feature child
+routes in their own file
+in the products folder 
+I'll create a new
+file and name it 
+product.routes.ts
+
+in this file I'll export a 
+constant
+called Product underscore routes
+by convention 
+constants and JavaScript
+and typescript are all 
+uppercase with
+words separated by an underscore
+the type of this constant is routes we
+import routes from @angular/router
+ routes is an array of Route
+objects then we set this constant to the
+array containing our product routes
+which I still have in my paste buffer
+and we import
+each of the components
+and our guard
+let's move this file to the side and
+close Explorer now we could use this
+constant in the bootstrap configuration
+as part of provide router
+but that has the same problem
+we still need to import this file which
+Imports each of our components and our
+guard at startup
+let's 
+lazy load these feature child
+routes instead 
+I'll again undo this
+change
+
+
+Lazy loading child routes without NgModules: loadChildren
+to minimize the amount of code that is
+loaded when the application begins let's
+lazy load our feature child routes that
+way our product features won't be loaded
+until they're needed I'll make this a
+bit wider we use 
+load children 
+to load
+all of the feature child routes 
+we
+Define a path which in this example is
+products then 
+set the 
+load children
+property to an arrow function we
+dynamically import our product routes
+notice how vsCode helps us find the
+route file
+when the routes are successfully loaded
+then we get access to the 
+imported route
+definition file and we use that
+reference to pull in those routes using
+our constant 
+now when the user accesses
+the products path only then does it load
+all of the routes to find in product
+routes
+but wait a minute now that we've
+specified the products path here the
+code will look for 
+products/products and 
+products/products/:id
+
+we need to remove the products
+part of the path here the first path
+becomes an empty string so 
+if the route
+is products 
+this code lazy loads the
+product routes 
+if there isn't anything
+on the route after the products it
+routes to the product list component
+removing products 
+the second path is the
+id parameter 
+if there is a value after
+products it uses it as an ID and routes
+to the product detail component let's
+see 
+if our new routes work 
+here is our
+welcome page 
+clicking product list
+displays our product list component and
+clicking on a product displays the
+detail for that product 
+clicking back
+returns to the product list page it
+works
+going back to the code we now have our
+product child routes lazy loaded only
+when they're needed but this syntax only
+works 
+if all routed components are
+Standalone if any of the components are
+not Standalone the route must be
+declared and an NgModule instead now
+what if we want to Lazy load our
+Standalone components directly without
+defining child routes we do that with
+loadComponent 
+
+
+Lazy loading standalone components without NgModules: loadComponent
+let's create a new
+component we can lazy load I'll use the
+angular CLI to create an about component
+that tells the user about the
+application
+open the terminal window add a command
+prompt and type 
+NG for angular CLI 
+G for
+Generate 
+C for component 
+about for the
+name of the component 
+--standalone
+ and the 
+angular CLI creates a
+standalone about component
+close the terminal 
+let's open Explorer
+and take a look in the new about folder
+is there about component because we use
+the 
+--standalone 
+flag the
+angular CLI created it as a standalone
+component in the app component 
+let's
+Define a menu option for this new 
+AboutComponent I'll copy and paste the list
+item for the product list option change
+/products
+ to 
+/about 
+for the
+route and set the text from product list
+to about
+then in 
+main.ts 
+we'll add a path to the
+about route
+but we don't want to 
+import the AboutComponent here 
+this option won't be used
+much so we don't want to load it on
+Startup since this component is
+Standalone we can lazy load it I'll
+reformat delete the component property
+and instead set loadComponent to an
+arrow function we 
+dynamically import the
+component 
+notice again how vs code helps
+us here
+when the import is successful we get a
+reference to the component file and load
+the component now this component won't
+load until the user accesses the about
+route it's important to note that load
+component only works with Standalone
+components 
+let's bring up the app here
+is our about option and the default UI
+displays about works so we've
+successfully lazy loaded our AboutComponent 
+feel free to improve the HTML
+for this component as desired let's go
+back to the code
+
+
+Removing Feature NgModules
+since all of our components are
+Standalone and all of our routes are now
+here we no longer need any routes in our
+NgModules so we can delete
+product.module.ts
+yes in 
+main.ts 
+we remove the reference
+to product module from the import
+providers from
+and scrolling up we removed the import
+statement bringing up the app one more
+time and it works without nNgModule 
+
+
+Wrap Up
+to create an application without angular
+modules called NgModules we add the
+list of routes to the bootstrap
+application configuration in the
+providers 
+array we specify 
+provideRouter 
+and pass in our routes 
+to Lazy
+load a set of child routes use 
+loadChildren 
+to Lazy load an individual
+component use 
+loadComponent
+
+
+
+13 Comments
+
+Hemang Thanki
+I have recently learned that, loadChildren does not need .then() if the PRODUCT_ROUTES are exported default! (I was wondering why not!!!) 
+
+Yes! I opted not to cover that thinking most Angular developers weren't familiar with "default exports". But maybe I should have?
+
+
+
+Ahmed Rashad
+can i use path with loadComponent in app.router.ts instead of main.ts 
+
+And if I understand your question correctly ... yes! 

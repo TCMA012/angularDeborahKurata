@@ -1,0 +1,731 @@
+RxJS Best Practices Aren't Always Black and White
+Deborah Kurata
+Nov 10, 2022
+To work with data in Angular, we use RxJS. In this talk, we look at some best practices including avoiding unsubscribe hell and nested subscriptions. We look at the difference between 
+mergeMap, concatMap, and switchMap. And between a 
+forkJoin, combineLatest, and zip.
+
+Then we walk through how to set up your RxJS pipeline to react to user actions. Join me as we look at these and other suggestions for getting the most from RxJS.
+
+Transcript
+Intro
+
+rxjs best practices aren't always black
+and white
+my name's Deborah carata and I'm a
+software developer I've recently started
+producing courses for Amazon and I'm
+also a pluralsight author
+my first best practice today is 
+Be
+declarative 
+
+what do I mean by that
+when we learned how to do rxjs we
+learned a procedural approach we create
+a function and that function returns our
+Observable
+we could instead make it declarative
+we do that by 
+
+declaring a variable and
+assigning it to our HTTP get that
+variable then holds our Observable
+
+why would we want to do that we can
+then 
+compose streams of data
+
+ so when we
+have all of our Observables and
+variables we can more easily put them
+together and compose them we can more
+easily 
+
+communicate across the components
+
+of our application and we'll see that in
+a minute we can 
+
+manage application State
+because we have access to those
+variables
+and we can more easily 
+
+react to those actions 
+
+so as the user does something we
+can actually respond to it 
+
+we'll see an
+example of that as well
+as soon as I start talking about using a
+declarative approach the first question
+I get is 
+
+what about
+parameters I need to do it as a I need
+to do it as a function because I need to
+be able to pass parameters in that I can
+this then use as parameters to my HTTP
+get 
+
+how am I going to do that if I do it
+declaratively
+and the answer to that is go reactive
+what do I mean by that 
+let's talk
+through a scenario in this scenario
+you're working with your team and each
+of your team members have a list of
+tasks that you keep the status of
+you come in in the morning and you want
+to check on everyone's status so you
+want to be able to pick a user and get
+user information
+so 
+how are we going to do that
+
+Reacting to Actions
+
+we want to be able to react to
+actions so as you as the user of this
+application 
+pick a different user from
+the list that you can react to that
+how do we do that 
+
+we first start by
+declaring an action stream
+ then we 
+emit
+a notification when that action occurs
+and we 
+react to that notification
+
+how do we declare an action stream we
+start by 
+
+declaring a 
+Subject or 
+BehaviorSubject
+ 
+in this example I use a Subject
+we use 
+
+private
+ to encapsulate the
+Subject in the service
+ 
+so we're creating
+this code in a service and we're using
+private so that this variable can only
+be accessed from within that service
+next we 
+
+declare an Observable
+ that's our
+second variable here and that 
+
+exposes the 
+read-only part of that Observable
+ so
+we use the  
+asObservable
+ to get the
+Observable read-only portion of that and
+use it in our declared variable here
+that way any other piece of code in our
+application can subscribe to that or
+react to that and get notifications from
+the Subject
+ so our second step then was to emit
+a notification so in our same service we
+can emit a notification when the action
+occurs so we do that by calling the
+Subject or 
+BehaviorSubjects 
+next 
+method
+
+so here when we get a new user ID we
+pass it in to next and next emits that
+into that Subject
+then we can react to that notification
+in any of our code that wants to react
+to that notification so we can then
+perform an action so in this case we are
+going to get the user information
+we could also use it to get related data
+or to 
+
+save as we'll see the get
+related data in a moment
+so here if you look each time that we
+select a different user we're going to
+pipe it through we're going to switch
+map it on the user ID and then on that
+user ID that's being emitted from that
+user selected action Observable and then
+we can use it in as a parameter in our
+HTTP get
+so we don't have to have a procedural
+approach in order to have parameters on
+our gets
+
+concatMap
+
+mergeMap concatMap and switchMap
+ oh my
+
+ if you look at stack Overflow it
+would seem that switchMap is always the
+best practice
+but that's not actually true what the
+best practices depends on what exactly
+you're trying to achieve 
+
+so here again is our scenario but in
+this case now when we pick a name we
+want to pick up the to-do's for that
+user so we're going to declare a to-do's
+variable we're going to assign it to our
+user selected action so we can react
+every time a user picks a different user
+and we're going to use some kind of
+higher order mapping operator here and
+we're going to get the associated to
+do's
+so should we use a concatMap we
+can think of a 
+
+concatMap like a 
+relay
+race
+
+emitted values are queued that a lot
+Runners are all queued up and t're
+processed in order
+
+ the second or Runner
+can never get ahead of that first runner
+and so on
+so it's going to perform whatever
+
+mapping
+ operator operation we want and
+we have to 
+
+wait
+ for it to complete when
+that first runner runs that second
+runner can't start taking off until t
+get that baton until that first runner
+completes then they can go ahead and
+continue and then it repeats that second
+runner runs up that third Runner cannot
+start until that second runner is
+complete
+so it 
+retains that order that first
+runner never gets ahead of that second
+runner
+so let's look at that example in more
+detail 
+so here we're going to go back to
+our
+to do's and we have our user selected
+action again and we're going to try out
+the 
+concatMap 
+
+now in this case we get
+into the office and we pick the second
+user from that list to get their to-do's
+and then we realized that wasn't who we
+wanted to look at so we picked the third
+one so that's what these numbers mean we
+pick the second user then we pick the
+third one then we realized that wasn't
+right either we really wanted the to
+Do's for the first one so we've rapidly
+picked the second user then the third
+user then the first user so what is this
+going to do if we use a 
+concatMap
+ here
+it's going to request that second User
+it's going to wait for that response to
+come back then it goes gets the third
+user's data and it waits for that
+response to come back just like a 
+relay
+race
+ then finally it gets that first
+user and waits for that response to come
+back so this is taking more time than it
+actually needs because we really only
+wanted that response for that first user
+so in this particular scenario 
+concatMap is not the best practice
+when is concatMap best practice
+
+
+
+use concatMap when 
+emissions are
+processed sequentially 
+one at a time so
+this is important whenever 
+order matters
+
+examples are insert update and delete
+you wouldn't want to do the update for a
+row before you did that insert so you
+can use 
+concatMap in that example
+you can think of 
+
+mergeMap as something
+like the 
+800 meter
+
+ they all start just
+about the same time but and then that
+performs the mapping operator but the
+
+emission order is not retained just
+because you got off the line first
+doesn't necessarily mean you're going to
+end first
+
+so again let's talk through our example
+where we picked the second user first
+then the third user then our first user
+only this time using 
+mergeMap so what
+happens is as you pick each of these it
+will immediately issue the HTTP get
+request
+then they finish when they finish
+so the third one has the smallest amount
+of data so that one finishes first
+then the first one finishes because that
+has the next smaller number of tasks
+then finally our second one finishes so
+
+mergeMap is definitely not the best
+practice 
+in this scenario because at the
+end we've requested the data for the
+first user and that's what's showing up
+under the username but the to Do's are
+for the second user so we have a
+mismatch in the data that our app is
+going to be showing us in this case so
+again mergeMap is not the best practice
+in this particular scenario
+
+
+switchMap
+we instead want to use mergeMap when
+emissions when we want the emissions to
+be processed concurrently because that's
+more performant but the order doesn't
+matter so for example 
+
+retrieving related
+data when the criteria isn't going to be
+changing on you
+the third one was 
+
+switchMap
+ and you
+can think of this as kind of 
+changing
+your mind
+ so the coach says  we're
+going to start this Runner no this one
+no this one but only one Runner actually
+does the running
+so 
+switchMap 
+is the same way it will
+stop processing of any prior emitted
+value and then switches to that new
+emitted value and then it performs the
+mapping operation
+and of course it repeats
+so going back to our same scenario where
+I've picked user two then three then one
+so we start by picking that second one
+it goes to get it as soon as I pick the
+third it cancels that second one then it
+goes to get the third one as soon as I
+pick one it cancels the third one and it
+starts to get the first one the only one
+that completes the only response that I
+get back is the one for the last one I
+picked which is that that first user
+so in this case 
+switchMap is the best practice
+
+forkJoin
+
+
+
+use switchMap
+ whenever only the 
+latest
+emission matters
+
+ so for example
+retrieving based on a user action 
+
+it's
+also really great for 
+type ahead
+functionality
+
+
+
+now let's look at another three of them
+
+forkJoin combineLatest and zip
+
+so here's an example of 
+forkJoin so
+
+here's my first Observable my second
+Observable I'm going to forkJoin them
+so a 
+
+
+
+forkJoin is a creation function
+not a pipeable operator it 
+
+waits for all
+Observables to Emit and complete so 
+it
+waits for all of them to do all of their
+emissions and complete
+then it 
+emits the last value from each Observable 
+
+so a is going to start off
+and it will emit one two three four then
+B is going to emit ABC t've both
+completed so then forkJoin will take
+the last value from each the 4 and the C
+and that's what it will emit
+now it might seem like it wouldn't be as
+useful if it's going to wait for all of
+them to Emit and complete before it does
+anything
+but when you think about an HTTP request
+it issues the request
+waits for the response and then
+completes
+so as soon as you get that data it
+completes
+so this forkJoin would work really well
+when you're retrieving data
+
+
+so let's look at a more realistic
+example here we want to get all of the
+users so we're going to get the array of
+users and for each user we're going to
+take that user information and get their
+to-do's so this is going to collect all
+of the users then for each User it's
+going to get all of their to-do's and
+map them into a single structure with
+the single user and their array of
+to-do's we can use a 
+forkJoin 
+in this
+case because what it's going to do is
+emit every time that these have both
+completed so I've gotten the user and
+their to-do's then I go get the next
+user and their to-do's and so on
+
+so this is great for 
+getting related
+data for each item in an array
+
+
+
+combineLatest 
+it's exactly the same example 
+
+combineLatest
+ is also a
+creation function 
+not a pipeable operator 
+
+waits for all Observables to
+emit at least once
+ so it doesn't wait
+for them to complete
+ just to emit at
+least once 
+but you need to watch out for
+Subjects in this case because Subjects
+don't immediately emit
+ 
+so what's going to happen in this
+case when any Observable emits combined
+latest will emit the latest value from
+each Observable  so it's going to
+wait for each to emit at least once so
+we're going to go one it's going to emit
+one two three four because that second
+one hasn't emitted anything yet as soon
+as the second one emits at least once
+there's the a it's going to take the A
+and join it and combine it
+with the latest value from the prior
+Observable which is the four then it
+emits the B it's going to join up with
+the four and the C it's going to combine
+it with the four with the four and
+that's what we end up with
+
+combineLatest
+ is really great when
+you need to combine anything and you
+want
+each thing individually
+ so you'll use
+it often if you want to 
+join all of your
+Observables so that you only have to
+create 
+one async pipe
+ in your user
+interface so here I'm combining all of
+the Observables I want to use on a
+particular components template into one
+Observable so I only need 
+one async pipe
+and 
+combineLatest is great for that
+usage
+so great for combining any data 
+
+
+the
+last one then is 
+Zip 
+
+Zip
+ is also a
+creation function 
+not a pipeable
+operator 
+
+waits until each Observable
+emits
+ so each one has to be met
+and then it emits the value from each
+Observable 
+as a set
+ so it kind of 
+Zips
+them in
+and then it 
+repeats 
+
+so here we've got
+our one two three four again and as soon
+as the second one emits and emits that a
+I'm going to get 1A it's going to zip
+them up as soon as I have met B it's
+going to hook it up with a second one
+from the first Observable and C with the
+three and it's going to toss out the
+four so that's how a zip works 
+
+here's
+a more realistic example I want to zip
+up I have 
+a array of users and their
+profiles and I happen to know that
+t're 
+both in the same order
+ so I can
+zip them up 
+
+the other commonplace to use
+them is when 
+combining matching sets of data (1:1)
+
+using 
+key and value pairs
+on a group buy so that's where I've
+actually used it in practice
+
+
+
+Basic Best Practices
+
+this talk would be complete without a
+few basic best practices as so
+here t are 
+
+don't forget to
+unsubscribe
+ if you subscribe then be
+sure you unsubscribe or 
+better yet
+
+don't subscribe at all instead 
+use the
+async pipe
+ the nice thing about the
+async pipe
+ is it 
+automatically
+subscribes 
+automatically unsubscribes
+and it 
+re-renders on each emitted item
+so every time a new item is emitted it
+will do change detection and re-render
+
+
+
+don't forget error handling
+ you want to
+handle your errors and you can catch
+them using Code something like this so
+we can 
+pipe it through and do a 
+catchError
+
+and here we're calling a function and
+that function would look something like
+this where we're going to take in our
+
+HTTP error response
+HttpErrorResponse
+ and we 
+return an
+Observable of 
+never which emits no items
+and 
+never completes
+ and that's the best
+one to use for error handling 
+otherwise
+you could get a type error
+and then of course we'd want to ensure
+
+
+
+we don't Nest subscribes
+
+here's an example so again we're
+looking at a procedural approach we're
+doing an HTTP get to get the user we're
+subscribing to that but we also want to
+get the to-do's for that user so we're
+subscribing to that as so we've
+nested another subscribe within the
+subscription
+so how do we do this code without doing
+this 
+the best answer is to go
+reactive
+ and to use the approach that we
+just talked about
+so if you want to resolve this but still
+stay 
+procedural there's a way to do that
+by using 
+higher order mapping operators
+so here we're using a 
+switchMap
+
+ so in
+this case we have our
+one original HTTP get
+we have our first HTTP get where we're
+getting the user and we're subscribing
+then inside we're issuing this HTTP get
+to get all of the to Do's by using
+switchMap
+ which is a higher order
+mapping operator
+it will automatically subscribe to its
+inner Observable
+and just a little terminology here this
+confused me when I first read it in the
+documentation when you look at it on a
+picture it's kind of obvious that that's
+the 
+inner Observable
+inside here and this is the 
+outer Observable
+ on the outside but when
+you're just reading it in the
+documentation it's not as obvious but
+that's that terminology here
+and of course the number one best
+practice that I can recommend when
+working with rxjs is just to have fun
+
+the code for this session
+https://github.com/DeborahK/Angular-Posts
+
+
+
+Comments
+
+I still would have a question about being declarative. You've shown how to declare only the read operation, but what about the mutations (create, update, delete)?
+I mean, in your example, the Users service, you have only onSelected(user) public method returning void, which does make sense. 
+How would you define create/update/delete methods to complete CRUD? I'm a little bit afraid that in this case I still would need to return Observable<void>, right? If we take as an example the Create user (after creating a user, set him/her as a selected user), would have you something like this?
+
+public create(user: UserModel): Observable<void> {
+  return this._http.create(user).pipe(
+    do(resp => this.onSelected(resp.id)), // load created user
+    map(() => undefined), // throw away the server response to match the Observable type
+    cacheError(this.handleError),
+  );
+}
+
+Let's not consider caching at this moment, to keep it simple.
+
+https://github.com/DeborahK/Angular-RxJS
+
+From the APM-WithExtras in the product-edit.service.ts:
+
+```TypeScript
+  // Save the product via http
+  // And then create and buffer a new array of products with scan.
+  productsWithCRUD$ = merge(
+    this.productsWithCategory$,
+    this.productModifiedAction$
+      .pipe(
+        concatMap(operation => this.saveProduct(operation))
+      ))
+    .pipe(
+      scan((acc, value) =>
+        (value instanceof Array) ? [...value] : this.modifyProducts(acc, value), [] as Product[]),
+      shareReplay(1)
+    );
+```
+
+=
+
+how to have a loading: true/false indicator during Ajax call? 
+when to set loading true & false while using async pipe?
+
+you can define the flag as a BehaviorSubject and emit when the value needs to change. Then react to that change notification.
+
+
+
+

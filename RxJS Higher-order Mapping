@@ -1,0 +1,131 @@
+0:00 / 4:18
+RxJS Higher-order Mapping
+Deborah Kurata
+Jan 18, 2023  RxJS Quick Takes
+What is higher-order mapping and why should you care? Plus how to use RxJS higher-order mapping to map a value to an Observable.
+
+In this Part 2 we review the difference between first order and higher-order mapping. Then examine higher-order mapping and the higher-order  …
+5 Comments
+albert kao
+Add a comment...
+Ruwantha Ratnayake
+Ruwantha Ratnayake
+4 months ago
+Sound quality is pretty bad. I have followed your Pluralsight courses so not sure what is the issue!
+1
+Deborah Kurata
+·
+The Chnow
+The Chnow
+4 months ago
+I don't like nesting pipe, why didn't you pass the tap operator at the same level of swtichMap ?
+Deborah Kurata
+·
+
+Transcript
+First order vs higher-order mapping
+so first order versus higher order
+mapping first order mapping transforms
+each emitted value and emits the result
+so something like this we get an emitted
+value into X we multiply it by two and
+we get out the result
+
+higher order mapping transforms each
+emitted item into another observable
+so here we're taking an ID so we're
+getting a stream with that's going to
+pre providing us an ID and we're
+transforming that using the HTTP get to
+go retrieve more data which is going to
+give us back another observable
+so that's the key difference between
+first order and higher order mapping
+let's dive into that a little bit more
+what if we have something like this so
+Example: Given an id, get the data for that id
+here is our set of products and the user
+wants this beautiful ring here so they
+click on ring and what we want to have
+happen is detail information to display
+we have a stream set up when the user
+clicks on ring it emits the ID of that
+so id5 for example then it goes and
+retrieves the data for the detail
+okay so our first thought might be to do
+Why using map doesn't work
+something with a map so we're going to
+take our selected ID that's emitted into
+our stream and we're going to map it
+into a product sounds right so we could
+write code like this so we're taking our
+selected product action dollar which is
+getting us this five because that's the
+one the user picked and we're going to
+map it into an HTTP yet to go ahead and
+get the data but this doesn't work
+bummer okay so why as you know if you've
+used anything with rxjs in order to make
+a stream work you have to subscribe to
+it otherwise it just doesn't go so here
+in this case we're going to subscribe to
+product dollar either with a subscribe
+statement or with an async pipe
+subscribing to product dollar subscribes
+to what it's equal to here the step
+product selected action so it starts
+that stream as well and we start
+receiving all of these selection actions
+the user clicked on the ring that's id5
+we're going to get the five
+we're mapping that to this HTTP get and
+get guess what we're not doing here
+we are not subscribing to that inner
+observable and this debt is never going
+to occur the other interesting thing is
+if you're in the editor and you hover
+over product dollar you'll see that its
+type is observable of observable of
+product and you know that's just not
+right that's not something that you're
+going to want to deal with or try to
+unwrap yourself so how do we deal with
+this and the answer is
+Higher-order mapping
+higher order mapping operators yay so
+let's talk about what those are a higher
+order mapping operators are a family of
+operators that ends in maps
+what they do is they map each value from
+a source or that outer observable to a
+new interobservable
+but one of the key attributes of higher
+order mapping operators is that they
+automatically subscribe and unsubscribe
+from your interobservable for you so
+that you don't have to worry about it or
+mess with it
+they then emit their resulting values to
+the output observable and you get The
+Binding that you're expecting to have so
+you might end up with code then that
+looks like this so this is the same code
+that we looked at before but now we have
+switch Maps instead of map having a
+higher order mapping operator means that
+it's going to automatically subscribe
+and unsubscribe from this and are
+observable and this code is actually
+going to work the other thing is if you
+hover your mouse over the product dollar
+there you will see that it unwrapped it
+for you as well so you're going to be
+getting back an observable of product
+which is what you're going to want for
+your binding for your detail page
+Higher-order mapping operators
+okay so three of the higher order
+mapping operators is the merge map also
+called flat map concat map and switch
+map
+

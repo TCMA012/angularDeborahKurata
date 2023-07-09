@@ -1,0 +1,1070 @@
+RxJS in Angular - Terms, Tips, and Patterns
+RxJS in Angular: Terms, Tips, and Patterns
+Deborah Kurata
+Nov 11, 2022
+
+Confused by all of the RxJS terms? I define the terms, provide some tips, and some common patterns for using RxJS with Angular.
+
+00:00 Welcome
+00:38 Terms
+00:49 Observable
+02:09 Why use an Observable?
+03:32 What does an Observable do?
+04:38 Marble diagrams aid in visualizing an Observable
+05:37 Angular creates Observables
+07:01 Subscription
+08:41 Observer
+11:15 Pipes
+13:31 Patterns: Thinking about RxJS
+14:43 Sample application
+15:17 Classic pattern for data access
+16:04 Declarative data access pattern
+18:45 Retrieve on action pattern
+20:22 Subject and BehaviorSubject
+26:28 Subscribe to an inner Observable and flatten the result with a higher-order mapping operator
+26:38 Higher-order mapping operators
+28:35 switchMap vs concatMap or mergeMap
+30:27 Shape on action pattern
+32:13 Combination operators: combineLatest, merge, forkJoin
+35:05 Retrieve related data pattern
+40:40 Key points
+
+Transcript
+
+we're going to be talking about four key rxjs patterns the declarative data
+access pattern the retrieve on action pattern shape on action pattern and
+retrieve related data pattern so those are the four we're going to concentrate on today but we're going to start with
+
+Terms
+some terms first to make sure that we are all on the same page regarding our
+rxjs slash angular terminology so the first term of course with rxjs is
+
+Observable
+it's basically a collection of items
+over time but unlike an array because array is also of course A different kind of
+collection 
+unlike an array it 
+doesn't retain those items 
+the emitted items can
+be observed over time
+
+ so say for example your 
+tracking key presses you could put
+those into an array so you have an app and so on if that was an Observable it
+would instead be like that and that and that they're just kind of
+occurring over time so if you said what's the third one it would be I don't
+know I just gave you a bunch of them I don't know what the third one was so that's something really important to keep in mind as you're working with
+Observables you could kind of Observable like a 
+
+drive up window the
+person at the window emits food items over time and if you went back around and asked the person at the window 
+what was in the bag of stuff you just gave me they would go I don't know I just gave you the bag and it's up to you
+to deal with whatever's in there once I gave it to you I have no recollection and you're gone so you can kind of think
+of an Observable like that why would you want to use an Observable well it's really great for things that
+
+Why use an Observable?
+arrive over time like 
+key presses 
+Mouse movements 
+button clicks and of course
+our 
+HTTP responses 
+ because as you recall when you access
+HTTP you issue a request with our HTTP get put post whatever so
+you issue that request it first has to find its way to the end point and then once it's found its way
+off to that endpoint then it 
+executes some code maybe it 
+calls the stored procedure on SQL server and it has to
+collect the data and so it's all taking some amount of time at some later point in time that response is actually
+returned to you and so it's a really good use of Observables you can also use
+it for notifications process complete process failure and so on
+using an Observable helps us very easily 
+
+react to arrivals or emissions and those
+notifications the other cool thing about Observables though is they also 
+
+work with synchronous data so you can treat
+an array as an Observable you can retrieve you can treat any set of data as an Observable so it doesn't
+necessarily have to arrive on time but that's really what it's good at
+
+
+
+What does an Observable do?
+an Observable does nothing
+until a consumer subscribes
+
+when subscribed the Observable begins
+emitting items or notifications to the consumer
+ and it only does three there's
+only three of them that it does 
+next when the next item is emitted and as part of that payload then it gives you
+that next item 
+error when an error occurs and once an error occurs no more
+items are going to be emitted and then 
+complete no more items are emitted 
+
+going
+back to our metaphor next is like the next car drives up and the person at the window hands them the next bag of food
+an error you can think of the cash register going down and they can't do any more transactions so no more items
+are going to be emitted and complete it's the end of the day and they are shutting down and not taking any more
+orders and those are the three notifications that you work with with
+Observables all right so along the way throughout this talk you'll notice that I'm going
+to throw in some tips and here is 
+
+my first tip 
+
+Marble diagrams aid in visualizing an Observable
+
+visualizing and Observable 
+now I take a very overly simplified view of 
+marble
+diagrams
+ so if you've seen a real one you know that this is quite simplified but I think it does a good job of
+making the point so in this case 
+the Observable is the line with the arrow on it the
+emission is that marble that purple dot on there and the 
+straight vertical line
+is the complete
+ I have one and done there listed on the left because when you work with 
+HTTP your Observable is
+one and done
+ it returns you the response from that HTTP request and then it's
+done
+ that's it you get that complete and that's the end of it but you also might
+have a more 
+infinite Observables for example that 
+keyboard input where it's
+just going to keep tracking what you're typing one of the nice things about angular is that it creates these Observables for us
+
+
+
+Angular creates Observables
+
+
+
+Routing emits parameters via a paramMap   Observable   
+FormControl emits value via a valueChanges Observable
+
+ and the one we've been talking about HTTP client emits the
+response via an observer Observable
+ so here's some code we've probably seen
+this kind of code a gazillion times this is in the angular documentation and all
+pretty much all the sample apps we have some kind of method like 
+getProducts
+ it returns an Observable that's going to
+emit an array of Products that's what that generic syntax is and then it Returns the response from the HTTP get
+the generic parameter there is specifying that when you when it
+receives that response back from the backend server that it should map it to
+an array of items matching your product interface so that's what that generic parameter is telling you
+
+in the component then we go ahead and call that method
+so question what does this code do it does absolutely nothing so why does
+it do nothing because an Observable does not do anything until a consumer subscribes
+
+
+
+Subscription
+subscription like the ever increasing number of streaming services
+    you have to have a subscription for it to emit anything for you so if you want to watch that new Star Trek series
+you have to get CBS all access if you want to watch Mandalorian you've got to get Disney plus you've got to have that
+subscription before you can start downloading those or viewing those
+programs and in 
+rxjs land it's similar you have to
+subscribe before it's going to start giving you something 
+
+technically speaking 
+a subscription is
+an object that represents the execution of an Observable so we add .subscribe
+on there the 
+Subscribe returns that object that
+subscription object and we can sign it into a variable 
+
+
+
+here's another tip 
+
+ensure each Observable is subscribed
+ and 
+ensure each subscription is unsubscribed
+
+so here is our component in a more complete sense so we've got the whole
+onInit
+onDestroy
+ our 
+ngOnInit is calling our subscribe so there's our subscribe it's putting it
+into a variable so that we can then on the destroy unsubscribe and that ensures
+that we don't have any memory leaks 
+so that's all fine and good we're
+calling our method we're getting back a subscription 
+where's our data 
+how do we
+work with that emitted value where is our array of products that's for that third term our third and
+Observer
+last term comes in an 
+
+Observer watches for emissions and notifications
+
+what notifications
+ do you remember what they are 
+next
+error
+complete
+    so our Observer is going to watch for those three notifications
+
+now you can 
+define an explicit Observer though this is uncommon I just like to kind of show this because it makes it
+more clear what an observer is though 
+we don't normally write code like this but
+Observer is an object with three methods a 
+
+next method defined with an arrow function it receives that emission which
+in this case is an apple and it performs an operation which is logging the error
+receives the actual error again the action is logging the complete doesn't give you any payload but it does allow
+for an action you need to then pass that observer in to the Subscribe
+in order for it to actually react to those but as I said this is uncommon what do
+we do instead we do our 
+
+Observer with an arrow function
+ so here's our subscribe
+and directly in our subscribe is where we have our 
+next function so we receive
+our next item which is an apple and we log it a couple of years ago rxjs was
+changed such that subscribe will only take one argument so it can either be
+that next function or it can be an
+object with our our Observer so our 
+next error and complete now you don't have to
+have all three of them most angular applications will you'll only see 
+next in error frequently you won't see the
+Complete because there's nothing special that needs to be done on complete for that particular case
+so looking at our set of code then our 
+source$ isn't Observable we
+have a$ on the end of that to identify that as an Observable so we can tell that it's not an array
+or some other kind of data structure the subscription is what we get when we
+call subscribe then we can use it to unsubscribe and then we're passing in our Observer with
+our next erroring complete all right so those were our terms Observable subscription Observer
+everyone's good all right there's one more thing that I want to cover before we jump into our
+patterns and that is pipes so
+
+Pipes
+when you work with rxjs what you can specify a pipe which 
+transforms each
+emitted item
+
+
+ for example say we emitted an a we could pipe it through a
+lowercase operator
+
+ and it becomes a lowercase a we can pipe that same a
+through an 
+enlarged operator
+ and then we have a 
+bigger lowercase a
+
+ so that is
+kind of how piping works you take it takes in the emitted value it performs
+some operation on it and then it emits to the next operator in the pipeline so you can
+kind of think of this as a pipeline that's going to perform operations on your emitted items
+
+
+
+some common pipeable rxjs operators include 
+
+tap
+ which Taps into the stream
+without changing it that's really great for debugging I highly recommend if
+you're having problems with rxjs to start putting a bunch of TAPS in so you can see what's happening at each step
+
+map
+ is a basic transformation 
+
+catchError
+ catches errors
+
+ and there's about a
+hundred more that we're not going to all cover in this little time frame here because I want to focus on these
+patterns that we're going to get to here in just a second all right so 
+what does a pipe look like
+in our code so we 
+start the stream with a subscribe
+then we pipe through a set of operators so there's our 
+tap
+ so we're just logging out what we are getting from our source
+and then we're 
+mapping
+ we're calling addToJuicer to manipulate that Apple into
+juice and then we're 
+subscribing
+ then we're using the map to
+process each of the items 
+notice that 
+there's no need for an observer because we can process the
+items instead through these pipeable operators you can still have an observer
+there if you also want to do something else but you don't have to have one and then of course we stop the stream when
+we're done with an unsubscribe
+ all right so that's piping
+
+
+
+Patterns: Thinking about RxJS
+I like many of you probably try to really support the community so I try to
+participate on stack Overflow such that I can I try to help people on Twitter
+there are discussion groups associated with my pluralsight courses that I try to help people on and one of
+the questions that I get frequently is 
+I don't even know where to start with this RX just JS stuff how do you even think
+about it and I kind of realized that it actually all of rxjs
+kind of works with this basic idea of 
+three things
+
+What do you have?
+What do you want?
+When do you want it?
+
+ so if you think of
+all of your rxjs what you need to do to make your rxjs pipelines work answering
+these three questions as simple and short that they are they actually do
+help you think through your rxjs so let's actually try these with our 
+four
+patterns 
+so here's my sample application I've got a list of products on the left so
+
+Sample application
+there's each of the products and this is my design and what I need to do as a
+developer is I need to get my rxjs to produce this list so I can display it on
+my page 
+so how do I do that 
+what do I have
+ well starting up the app
+I don't have anything I have nothing 
+what do we want
+ we want the list of products 
+when do we want it
+ we want it
+on the initialization of the component so here is our classic pattern for
+
+
+Classic pattern for data access
+retrieving data the code in our service and we've already looked at code very similar to this this one just has the
+piping tap to display some data to make sure that our HTTP get worked and I
+can't catch error and then in our component we've already seen this code as well the only part
+that's different is we are now taking the products we've received from that service and putting them into a
+component level property our products property that we can then bind to so
+this all looks familiar yeah but notice that 
+
+our service was 
+procedural
+
+meaning that we're using a  
+getProducts method in order to retrieve our data
+
+
+
+Declarative data access pattern
+what if we instead made it declarative so instead of a subroutine that we're
+going to call let's just 
+declare a variable so it's 
+products$ again
+the$ is because this variable now represents an Observable the rest of the code is basically
+everything from that return statement so we're just now have 
+a variable for our
+Observable our component then looked like this with
+our call to our procedural method there if we went with a declarative approach
+we could simply do something like that way less code 
+wait we don't have any subscribers
+subscribe how is that going to work how are we going to make this go we already said
+this doesn't work unless you subscribe or unsubscribe we're going to 
+
+use the async pipe
+
+ that's our next tip 
+
+
+now it's important 
+not to get this pipe confused with our other kinds of pipe we were just talking about rxjs
+pipelines and the 
+.pipe
+ keyword
+ this is a template kind of pipe like our 
+date
+pipe and our 
+number pipe
+ and all of those kinds of pipes so it looks like this
+
+products$ | async as products
+
+ with that pipe character that 
+vertical of the vertical line that tells
+us to do async so what we're doing is we're going to bind to our Observable so it's got the products$ pipe async
+and what the 
+async
+ will do is 
+automatically subscribe for us and
+unsubscribe for us so we don't have to have that in our code
+
+
+
+  what the 
+as
+ does as anytime
+product seller emits it will emit into that variable so that we can then use it
+so let product of products we can then use that products variables that it
+emitted that array of products into are we good so what we've just done
+is talk through the 
+declarative data access pattern 
+so we have our products
+in our service our products$ also in our component that simply references
+the one in the service and our async pipe and our template and that is our
+first pattern marble diagram can't forget that so here's my incredibly
+simplistic 
+marble diagram
+ so I call this a 
+data stream because
+it's actually retrieving data and there is my array of data and of course it
+completes because it's one and done
+
+ moving on to our second pattern so this
+
+
+
+Retrieve on action pattern
+is a different pattern that we're going to talk about next in this case we have
+now a 
+drop down
+ on our product list where you're going to pick a category
+so we pick a category and then we only list the products for that category
+
+why would we want to do this well maybe we have you know millions of products like Amazon or hundreds of
+products way too many for the user to scroll through and we want to give them some kind of way to break down that
+criteria and only get then those products matching that criteria all right so what are we going to do how do
+we begin to attack this as developers how are we going to do it 
+
+what do we have?
+ well we have the
+category that the user is going to pick we have that action that the user is
+going to do 
+
+what do we want?
+ we want all of the
+products for that category so what do we have we have the action 
+we want the list of products only for that category 
+
+when do we want it?
+anytime the user performs that action anytime they pick a new category
+so our problem now is that we no longer have a method and if we don't have a
+method we have no way to pass in this category ID so how are we going to get
+that data how are we going to pass it in so what is our alternative
+
+I've said the word action several times here anytime you hear that yourself say
+Subject
+ and 
+BehaviorSubject
+we have an action or when do we want it we want it when an action occurs you
+want to think to yourself that we're going to follow a specific pattern that knows how to deal with actions
+
+this brings us to our next tip 
+
+to respond to an action,
+use a Subject or
+BehaviorSubject
+
+
+ now a Subject and BehaviorSubject are special types of
+Observables so they're special kinds of Observables that we create ourselves
+
+so here's a Subject I'm using 
+private 
+to create the Subject and I'm using the 
+new
+keyword to create a 
+new instance of a Subject the generic argument there defines what I plan to emit into the
+Subject I'm creating so I want to pass in a 
+number
+ that category ID
+now I want to make that 
+private
+ because I don't want any other code in the
+application other than this particular service to be able to emit things into that directly or to be able to complete
+my stream or to be able to Arrow it out or anyhow mess with my Observable
+stream that I'm creating instead that second line of code is exposing the
+read-only part the Observable part of that Subject and so that we are allowing
+to be public and notice that has the 
+dollar sign suffix on it identifying it as the Observable so that's a
+Subject and it's basically an Observable that we're creating ourselves that we're going to emit into ourselves
+what's the difference between that and a BehaviorSubject a BehaviorSubject
+allows us to have a default value when you define a Subject it doesn't
+immediately emit anything until the stream until we actually emit something
+into the stream a BehaviorSubject will initially emit a default value which is
+in this case that one that you see in the Constructor parameter
+the other thing a BehaviorSubject will do then is if someone subscribes late they will get the last the most recent
+emitted values so they will always get a value when they start off
+when would you use the Subject versus a BehaviorSubject well in our particular case we don't want the default category
+we want the user to pick a category so we don't want the default so we want to use the Subject if we always wanted to
+start with a general category or a on sale category or whatever then we could
+Define our BehaviorSubject with that particular ID the next thing I want to just bring up
+is how we emit the value so we're going to use the Subject and we're going to emit a value normally what we do is
+create a subroutine in the same service that we Define the Subject we take in a parameter defining
+what it is that we want to emit into the stream and then we call next
+
+the Subject has three methods on it 
+next
+ is one anyone want to guess what the
+other two are 
+error
+ that's correct and complete that's right so it's very consistent with how this
+works so we can next we can error we can 
+complete
+
+ so here we're nexting in this category so what we would do is when the
+user makes a change in the UI the component would call selected category change passing in that category ID next
+would emit that into the stream and then category selected action would emit it
+to anyone who has subscribed to that stream so now let's go back to our pattern
+so what did we say we had we had our action so now we've defined what we have
+with our Subject somehow then we need to take that
+category ID and issue an HTTP request so
+now we know that our category selected action is going to emit a category ID so
+in that second line there where it says map question question map we get that
+category ID so we can use it in our inner Observable so notice that this is
+an Observable inside our category selected action Observable 
+
+so now we've
+got two levels of Observable so looking at this code we have two
+problems one what kind of map should we use to make this actually work and two
+if we use the async pipe and subscribe to our products$ that will
+automatically subscribe to our category selected action$ but what's going
+to subscribe to that 
+inner Observable
+ we have our 
+inner Observable
+ we have some
+kind of map we're supposed to use and that brings us to 
+
+
+
+our next tip which is 
+
+leverage your IDE
+
+if we decided to try 
+mapping
+because you know that's usually the first thing we want to try 
+
+is we want to try a map so here's my code here's a
+screenshot from 
+visual vs code and I just try to map there and I have that
+same line of code if you hover over 
+products$
+ in vs code it will show
+you kind of above that line that we have an 
+Observable<Observable<Product[]>>
+Observable of Observable of Product[]
+
+ and that's 
+not what we want 
+we want an 
+Observable of Product[]
+
+ so
+that's one problem that we have this wrapped value that that isn't in the format that
+we're wanting it and we also still have to deal with the fact that we've got that 
+inner Observable
+ which then leads
+us to 
+
+
+our next tip 
+to subscribe to an inner Observable
+
+Subscribe to an inner Observable and 
+flatten the result with a 
+higher-order mapping operator
+
+and flatten the result we want to use a 
+higher order mapping operator
+ also called 
+a flattening operator
+
+
+
+Higher-order mapping operators
+automatically subscribe to the inner Observable
+ they then 
+
+flatten the resulting
+Observable
+ so you'll get 
+Observable<T>
+Observable of your type
+
+ not Observable<Observable<T>>
+ not Observable of Observable of your type
+ which would be not what you wanted and it 
+
+automatically unsubscribes
+from the inner Observable
+ so you don't have to worry about that inner Observable at all 
+
+
+
+some common higher order mapping operators 
+
+switchMap
+stops the current operation and performs the new operation
+
+concatMap
+performs each operation one at a time, in order and 
+
+mergeMap
+performs each operation concurrently 
+
+we are going back to our 
+retrieve on action pattern
+ 
+so what do we have again we have our the user selected
+category and now we have our code here with our pipe and we're going to use a
+
+switchMap
+ first of all it will 
+automatically subscribe to our inner Observable and then it will
+automatically flatten the result and 
+automatically unsubscribe from it if we
+hover over products$ now in visual studio code you would see that it
+is 
+Observable<Product[]>
+Observable of Product[]
+ not Observable of Observable of product array
+ so we'll get the right thing here here's my 
+marble diagram
+I call this an 
+action stream because it's based on the user's action
+ the user clicked category 42 it runs
+through the 
+switchMap and it results in an array of products for that if the
+ user later says no I want category 15 it will again execute the 
+switchMap
+and provide you a list of products for that particular category
+ 
+why switchMap?
+why not concatMap or mergeMap?
+
+ so let's
+switchMap vs concatMap or mergeMap
+
+talk through an example of why 
+switchMap makes sense here
+
+ let's say that the you that we have
+three categories one two and three just to make the numbers easy to remember the user picks two no three no one
+with a switchMap so it's going to go out to get category two sees that the user picked Category 3 cancel that
+request switch over to three issue that request see that the user
+picked one cancel and switch over to the one and 
+only return then
+the last one that they picked which was category one
+
+ if we use 
+concatMap what it would do if
+the user said two no three no one it would go get to wait for it to come back
+then get three wait for it to come back then get one and wait for it to come back and
+depending upon your UI and the speed it might be very confusing because the last thing they picked was one and they're
+getting two in a couple seconds later they'll see three and so on
+
+mergeMap
+ on the other hand will issue them all at once or right away
+so it would if the user picked two then three then one 
+mergeMap
+ will shoot off two then three then one and if two
+happens to be a huge set of products and take longer even though one was the last
+one they picked it could actually return the results of two last and that's what
+you would get here so then you're going to have this really 
+strange bug where sometimes when the user picks a category
+right after another category they're not seeing the right one so that was my answer why not concatMapper mergeMap
+
+
+
+our third pattern is the shape on action
+
+Shape on action pattern
+
+we're shaping the data we aren't going
+to retrieve more data so here we've got a list of products when the user picks one we want to display the detail now we
+could go back to the server and get it and follow the same pattern that we just looked at retrieve on on action but in
+our case our products don't change very often once the user downloads them that set of them we can just filter it to
+display the one so that's what we're going to look at for this pattern so 
+
+our question again is
+
+what do we have?
+in this case we have our list of products and we have an
+action as soon as I'm saying action we're thinking to ourself hey we're going to probably need a
+Subject
+ or 
+BehaviorSubject 
+
+what do we want?
+we want the detail for the selected product 
+
+when do we want it?
+anytime the product changes here's our products this is the exact code that we looked at just a moment ago
+
+with our 
+switchMap
+ so that's one of the things we have the other thing that we have then is this action so again we're
+going to define a Subject now we 
+don't want to Auto pick one of the products so
+we don't want a BehaviorSubject we want a Subject so now we 
+have two streams we've got our
+product stream which has all of our products and our product selected action Observable that that emits the one that
+the user just picked we 
+need both of those to work together in order to find
+that ID that was emitted in that list of products 
+
+
+whenever you need to work with 
+multiple streams
+ the first thing that you probably want to think about is a
+Combination operators: combineLatest, merge, forkJoin
+
+combination operator 
+combination operators for example are 
+
+
+combineLatest 
+emits a combined
+value when any of the Observables emit and they 
+won't emit until all Observables have emitted at least once
+if you wanted your code to stop and wait to do the next
+step until it's retrieved the data back from the server
+
+
+merge
+emits the one value on any of the Observables emit
+
+merge is most often
+used when you're dealing with 
+like things
+ so not customers and orders but 
+current customers and past customers
+that you want to merge them into a list of customers
+
+
+forkJoin
+when all
+Observables complete and that's an important part of this 
+when all Observables complete emit the last value
+from each Observable into an array
+
+when we talk about action Observables
+and we're talking about them continuing because the user could continue to pick different categories or continue to do
+paging or whatever they're going to do those Observables aren't going to complete so you don't want to forkJoin
+them because they'll never emit anything because it won't emit until all of the
+Observables your forkJoining are complete 
+
+
+
+the Shape on Action pattern
+
+what did we have?
+we've got our products 
+we also have our product
+selected Subject this action of what we've what product we've just picked and we
+are going to merge them using 
+combineLatest so 
+combineLatest takes an array
+
+I only have two that I'm combining but I could be combining any number of them what they emit then is an array where
+the first element is the emitted value from the first stream 
+the second element is the emitted value from the second
+stream and so on however many streams that you define 
+by doing that that then gives us
+access to our actual list of products and the actual product ID so we could
+use it to find the one that we're looking for so that's very useful for
+
+shaping or finding or filtering or anything like that that you might want
+
+
+marble diagram
+ our data stream is the data that we originally
+requested then the user says Hey I want the detail for product one and we get
+the saw and then if the user picks hey I want the third product and then it will
+return on x 
+
+
+
+our fourth and last pattern
+
+Retrieve related data pattern
+
+we're going to cover here is the retrieve related data pattern and we have 
+
+two sort of subtypes here our 
+first subtype
+ is when there's a 
+one-to-one relationship
+
+our product has one supplier and 
+the product has an ID for that supplier
+ and we want to get the
+data related to that
+
+what do we have?
+we have our product and
+the user selected that product 
+
+what do we want?
+we want the associated supplier
+
+when do we want it?
+anytime the user picks a different product we want to get that product supplier
+as we said we had the selected product
+ this was the code we just looked at so
+this is defining that it's going to emit that one product that was selected by finding it in the Observable with all
+the products in it then what we're going to do is 
+pipe our selected product through 
+switchMaps
+ so
+that it automatically subscribes to this inner Observable and gets that Associated supplier
+so it's very similar and again we would use the 
+switchMap
+ here because the user could say I want product one no seven no
+15 and it will just keep canceling the prior ones and get the last one the user
+picked all right but 
+
+
+what about many?
+
+what if you had many suppliers that could
+provide this product and then when you need to reorder you could pick from that list
+of suppliers 
+
+how do you deal with that
+ say in this case our product
+has then an array of supplier IDs and we want to somehow go through that array
+to get all of these suppliers 
+
+that is not the
+best implementation of how to do this and the reason I'm doing this first is because it's very explicit and easier to
+talk through so here I have 
+productSuppliers$
+so that's my Observable that's going to be the array of product suppliers associated with a product
+so here's that selected product I'm going to 
+pipe it through a 
+switchMap
+ just like I did before but now instead
+of just using that ID I'm going to use the 
+array of IDs so product.supplierIds is an array
+I'm going to use 
+from
+ because 
+from 
+creates an Observable from an
+array 
+
+I want to create an Observable from the array because I want to pipe it
+some more 
+I can't pipe an array 
+I need it to be an Observable
+in order to have it emit the individual IDs and to be able to pipe those individual IDs through this pipeline
+
+inside my pipeline I'm using a 
+mergeMap
+ to get this take the supplier ID and
+then get the supplier and I'm using a 
+higher order mapping operator because
+again I want to have it 
+automatically subscribe to this inner Observable and
+unsubscribe
+ and also to
+flatten it
+
+ why 
+mergeMap?
+
+let's Envision that
+we had switchMaps
+ so my product ID supplier IDs for example just to be simple let's say they're one two and
+three if I had switchMap
+ it would go to get one cancel it get two cancel it get
+three and I'd only end up with three when 
+what I want is all of them so you would 
+never want to use switchMap
+ in
+that particular case I could use 
+
+concatMap
+ and what that would do is get one wait for it to come
+back then get two wait for it to come back then get three which if you need
+them in order might be what you want to do 
+mergeMap
+ will go I need one two three it'll send all those out and it'll
+just collect them as they come back not concerned about order the last thing then we do is a 
+toArray
+
+toArray
+ ensure that each of these individual
+return suppliers are added to an array 
+otherwise our product suppliers will
+emit one at a time and our UI will show one and then it will disappear and then it'll show in the next one it will
+disappear and we want it to show the array of them so I said this is 
+not the best implementation 
+
+
+what do you really want
+to do well 
+let's take this whole piece here and replace it with one operator
+forkJoin
+
+forkJoin does what all that other stuff did only it
+does it with One Creation function 
+
+forkJoin 's taking our supplier IDs 
+mapping
+them all it's 
+automatically subscribing to our inner Observables and it's
+joining those all together into an array for us and it still then results in
+productSuppliers$ being an array of productSuppliers 
+
+in a 
+marble diagram
+ there's our product Stream 
+ we had a saw that the user
+picked and it's going to in this case there were only two
+suppliers it's going to 
+forkJoin
+ them and then it's going to give those to us and if the user then picked
+another one it would then have more data streams and put them together and emit it
+
+
+
+Key points
+
+Declarative data access pattern
+one of the benefits of that pattern is that it makes it a whole lot easier to use any of these other patterns and you
+can use that anytime you want to retrieve simple data 
+
+
+
+Retrieve on action pattern
+good for retrieving based on a 
+user selection
+ so we could have used that if we actually wanted to
+go to the server every time the user picked a new product we can use it for user selection of a
+category and only want to getProducts for a category
+ you can use it for 
+paging I only want the first page of data now I
+want the second page of data so you can use the same pattern that exact same set
+of pipeline operators for 
+paging
+
+
+
+Shape on action pattern
+filter, map or transform an Observable on user selection, etc
+ so that's
+making the assumption that you're not going out to get new data but rather you're going to somehow modify the data
+that you have filtering or transforming it in some way
+
+
+
+Retrieve related data pattern
+Retrieve data and use id(s) to retrieve related data
+deal with users
+so the user logs in you get the 
+user ID the then you take that ID to get the related data
+their posts or
+their customers or their orders or whatever having to do with that user and
+it can be one in that case it would be one user ID getting all the data for that or in our example we had multiple
+IDs all right 
+
+
+
+here are some links 
+https://github.com/DeborahK/Angular-ActionStreams
+
+https://github.com/DeborahK/toh
+I took the tour of Heroes from the angular documentation and I converted the whole thing to be a
+completely declarative approach using some of these patterns
+
+
+Twitter
+@deborahkurata
+
+
+
+Comments
+
+how do you test an Observable inside a function? Especially if it's not called via ngOnInit? It would be great if you did a video around testing Observables with various pipes.
+
+I'll add it to the list!
+
+=
+
+what if using the declarative Data access pattern related to products$, you also need p.e. to subscribe in ngOnInit method to transform data before passing to child component? Altough async pipe is taking care of unsubcription, due you also subscribed at ngOnInit(), do you actually need to unsubscribe or just one async pipe at comp level manages all unsubscriptions happening? Would this break the declarative data acces patern?
+
+
+
+I'm not sure I understand the question.
+
+Using the declarative data access pattern you can still pipe the data, transforming it as necessary. For example:
+
+  product$ = this.productService.selectedProduct$
+    .pipe(
+      catchError(err => {
+        this.errorMessageSubject.next(err);
+        return EMPTY;
+      })
+    );
+
+You could add code within the pipe here to perform any needed data transformation.
+
+OR
+
+You can perform the transform in the service so that product$ already has the filtered data. Like this:
+
+  selectedProduct$ = combineLatest([
+    this.productsWithCategory$,
+    this.productSelectedAction$
+  ]).pipe(
+    map(([products, selectedProductId]) =>
+      products.find(product => product.id === selectedProductId)
+    )
+  );
+
+The async pipe handles the subscribe and unsubscribe ONLY for the Observable it uses. 
+RxJS automatically handles and subscribe/unsubscribe for higher order mapping operators (such as mergeMap) and for any references to that same Observable.
+
+For example, in the above code if you have an async pipe that uses product$, it will automatically subscribe and unsubscribe to product$. And since product$ is a reference to selectedProduct$ in the service, that Observable is subscribed and unsubscribed.
+
+Did I understand the question? 
+
+-
+
+So let´s say I want product$ in the template making use of the async pipe, as a variable to display the productId at the title of a reusable card component.
+
+And let´s say a colleague takes the day after this same component and because a transformation is requierd before passing data to child, instead of piping the stream, he subscripe at ngOnInit to do so.
+
+Would it be my colleague´s subscription unsubscribed by my async pipe at template or ngOnDestroy is now needed?
+
+-
+
+When working with unicast Observables, like in this example, you can think of a subscription like a wire. Subscribing creates the wire between the source of the emissions (often an HTTP request) and the code. Each emission then follows that wire from the source to the code. Each subscription is it's own wire.
+
+On unsubscribe, the wire is cut and no more data can follow that wire from the source to the code.
+
+So, when your async pipe unsubscribes, it cuts the wire between the Observable source and your template. It does not impact your colleagues wire. A separate subscribe ngOnInit creates it's own wire that must then be unsubscribed/cut.
+
+=
+
+regarding declarative approach at 18:10. 
+Is not better to use the products$ (from service) instead of creating new same local variable in component. It would be like this in template: 
+*ngIf="productService.products$ | async as products"?
+- less code, more readable.
+
+This may be one of those "personal preference" things. I much prefer for my component/template to be encapsulated. Anything that the template needs should be in the component.
+
+From the docs here: https://angular.io/guide/architecture-services
+"A component should present properties and methods for data binding to mediate between the view and the application logic."
+
+=
+
+I basically took snippets of code from several of my projects/courses to demonstrate the concepts in this video. So I don't really have all of the code you see in one project. 
+This one may be the closest: 
+https://github.com/DeborahK/Angular-RxJS
+
