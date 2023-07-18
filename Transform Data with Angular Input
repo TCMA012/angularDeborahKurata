@@ -1,0 +1,317 @@
+Transform Data with Angular @Input()
+Deborah Kurata
+'
+Jul 13, 2023  #angular #demo #bestpractices
+Starting with Angular v16.1, we can now transform data using the @Input() decorator.
+
+The @Input() decorator identifies an input property. We can use an input property to receive a value from a parent component. Or read a route from the URL.
+
+The @Input() decorator provides three additional feature options for our input properties: 
+alias, required (v16), and transform (v16.1). This video briefly describes the first two, then focuses on data transformation.
+
+Content
+00:00 The @Input() decorator
+02:15 Alias the input property name
+03:37 Require an input property
+04:33 Transform a value before assigning it
+05:44 Create a reusable transform function
+05:55 Built-in transform functions
+06:21 Using the booleanAttribute transform function
+07:51 Using the numberAttribute transform function
+08:23 Sample code
+
+Links
+YouTube video "Use @Input() to Read Route Parameters in Angular":    • Use @Input to Rea...  
+
+GitHub source code:
+https://github.com/DeborahK/Angular-Experiments/
+https://github.com/DeborahK/Angular-Experiments/tree/main/apm-parent-child
+
+#angular #bestpractices #angulartutorial #demo 
+#angularparentchild #componentcommunicationinAngular #angularcomponentcommunication #componentinteractionAngular #componenttocomponentcommunicationinAngular #componentinteractioninAngular #passingdatafromcomponenttocomponentangular
+Chapters
+Deborah Kurata
+
+
+Comments
+
+Transcript
+The @Input() decorator
+starting with angular version
+16.1 we can now transform data using the
+input decorator
+we use the input decorator to Define an
+input property and input property allows
+us to specify a property in a child
+component that can receive a value from
+a parent component
+here we have a child component with a
+selector of PM product detail we use the
+input decorator to Define an input
+property called Product the child
+component expects to receive a value for
+this property so it can display that
+product's detail
+and here is the parent components
+template we pull in the child component
+using its selector the child component
+template will appear here for each
+product in the array the parent passes
+data to a child component by binding to
+its input properties in this example the
+parent binds the child components
+product input property to P which
+represents each product
+the result appears like this a child
+component for each product displaying
+that product's detail
+as of angular version 16 we can also use
+an input property to read route
+parameters from the URL
+this code is from a different example
+that uses routing instead of a
+parent-child design in a component we
+use the input decorator to Define an
+input property the route parameter is
+automatically threatened to this
+property nice
+I did a video specifically about reading
+route parameters using input properties
+you can find that video here
+the input decorator provides three
+additional feature options for our input
+properties 
+Alias 
+required which is new
+in angular V16 and 
+transform which is
+new in angular
+v16.1 I'll briefly cover the first two
+then focus on data transformation
+
+Alias the input property name
+when using the input decorator we need a
+way to match up our child input property
+to its parent bound property or route
+parameter one way to do that is using
+the input property name in this example
+we set the input property name to the
+exact same name used in The Binding but
+we don't have to we could instead set
+the input property name to something
+else
+let's add a second input property
+display detail the parent component
+binds using that name but it's kind of a
+longish name let's change the input
+property to a shorter name
+but that doesn't work angular's binding
+has no way to match up the bound
+property here with the input property
+here
+what we need is an alias
+we add the Alias as an argument to the
+input decorator angular can then match
+up The Binding with the appropriate
+input property
+the syntax is actually a shortcut the
+long form looks like this here we pass
+an object into the input decorator and
+set the Alias property
+use the short form if the Alias is the
+only option you need use the 
+longer form
+if you plan to use other input decorator
+options
+
+let's move on to the required option
+Require an input property
+what do you think will happen if the
+parent component forgets to bind to the
+child component input properties there
+won't be an error instead the child
+component will just use its initial
+values for the display detail that's
+probably okay it's initialized to true
+but the product property is initialized
+to null so nothing will display get
+where I'm going with this you can use
+the required option to mark an important
+input property 
+the parent component must
+then 
+provide a value for that input 
+if
+the pairing component does not provide a
+value angular generates a error required
+input product from component product
+detail component must be specified that
+way our child component won't silently
+fail
+so that's the required option
+
+Transform a value before assigning it
+lastly let's look at the transform
+option using transform we Define a
+transformation function that function
+takes the value passed in by the parent
+component and modifies it to something
+else for use in the child component
+say that our users like that 1990s look
+so here we take the image title string
+and 
+transform it to uppercase 
+
+here's
+another example the child component gets
+product data from the parent component
+that child component wants to display
+the product name and uppercase we do
+that again with a transform function in
+this example we want to ensure the
+parent component provides the product
+data so we set the required option to
+true then we set the transform option to
+a function that returns a product object
+this function takes the Past end product
+uses the spread operator to make a copy
+of that product and modifies the product
+name to uppercase
+use the transform option to perform any
+type of data transformation on the
+provided value before it's assigned to
+the input property
+
+Create a reusable transform function
+if you'd rather create a reusable
+transform function you can Define it as
+an exported JavaScript function then set
+the transform property to the name of
+that function
+
+Built-in transform functions
+instead of creating a custom transform
+function we could use one of angular's
+built-in transform functions two of the
+built-in transform functions are 
+Boolean
+attribute and 
+number attribute as the
+names imply the 
+
+Boolean attribute
+transforms a string to a Boolean value
+true or false and the 
+
+number attribute
+transforms a string to a numeric value
+
+Using the booleanAttribute transform function
+the Boolean attribute is especially
+useful if you want your input properties
+to work like HTML Boolean attributes
+
+in HTML a 
+Boolean
+attribute is true if it is present
+otherwise it's false 
+
+for example an
+input element is disabled using an HTML
+Boolean attribute as shown here
+if we wanted to create a Boolean input
+property previously we would need to use
+binding for the include image input
+property we'd like to work with it like
+an HTML Boolean attribute but the parent
+component had to instead bind to the
+child component's input property and
+assign a value of true or false but not
+anymore by 
+using the built-in Boolean
+attribute transform function we can now
+use HTML Boolean attribute syntax when
+the attribute is present the value is
+true 
+if the attribute is not present the
+value is false 
+
+notice the input property declaration as
+of this recording for the angular
+compiler to work correctly the 
+type of
+the input property must be 
+string or
+Boolean that's because angular
+interprets all static attributes such as
+our include image attribute as a string
+so the incoming value is a string and
+with the Boolean attribute transform
+function that string is transformed to a
+Boolean
+
+Using the numberAttribute transform function
+we use the built-in number attribute
+transform function to support HTML
+attributes that way the parent component
+has the option to use standard input
+binding or use an HTML attribute for a
+numeric value
+the number attribute is also useful when
+reading row parameters will use it to
+transform a route parameter which is
+always a string to a numeric value to
+use in the component
+
+Sample code
+here is my product detail component I
+have several input properties some of
+which include commented out Alternatives
+the product property is required and
+transforms the product name to uppercase
+or we could instead create a reusable
+function and assign it as the transform
+function as shown here
+
+scrolling up for the display detail
+input property we want to use a
+different name in the component code so
+we use an 
+alias the parent component
+will bind to display detail but we name
+the input property detail we could use
+the shorthand syntax as shown here or
+set the Alias property as shown here
+the image width is a numeric input
+property we want to support standard
+HTML syntax in addition to binding so we
+use the built-in number attribute
+transform function
+
+tinclude image is a Boolean input
+property we want to support the HTML
+Boolean attribute syntax where the
+presence of the attribute means true
+otherwise false so we add the built-in
+Boolean attribute transform function and
+Define the appropriate input property
+type the image title is a string and we
+transform it to uppercase
+
+here is my product component template
+if I remove all of the bindings we see
+an error because our product property is
+marked as required I'll undo that
+notice tinclude image doesn't
+require binding because we use the
+Boolean attribute just 
+the presence of
+the attribute implies that the value is
+true and because we've used a number
+attribute transform function we can set
+the image width either using binding
+like this
+or as an HTML attribute like this
+you can find the link to this code in
+the notes for this video
+
