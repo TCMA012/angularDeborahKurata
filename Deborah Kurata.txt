@@ -1,0 +1,7 @@
+Deborah Kurata
+https://github.com/DeborahK/Angular-Signals
+
+https://github.com/DeborahK/angular-rxjs-signals-fundamentals
+
+https://github.com/DeborahK/Angular-posts
+https://jsonplaceholder.typicode.com API for users, posts, and todos
