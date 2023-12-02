@@ -1,0 +1,665 @@
+2 How Angular Signals and RxJS Work Together
+Deborah Kurata
+Apr 11, 2023  Angular Signals
+Common questions I hear when talking about signals involve RxJS.
+"Do signals replace RxJS?" "Is RxJS going away?" "How do signals work with RxJS?"
+
+To answer these questions, let's take an Angular application that uses RxJS and modify it to include signals. We'll look at creating signals from Observables, and binding to those signals. And we examine techniques for reacting to a signal in an Observable pipeline.
+
+This video assumes you have a basic knowledge of signals, the new feature in Angular v16. Signals provide more reactivity and finer control over change detection. If you aren't familiar with signals, consider watching my introductory signals video first. You can find the link below.
+
+NOTE: The Angular team announced that they will be changing (possibly later this week):
+fromObservable 👉 toSignal
+fromSignal 👉 toObservable
+
+Links
+Angular Signals: What, Why, and How?:    • Angular Signals: ...  
+
+Code example:
+https://github.com/DeborahK/Angular-Signals
+
+Content
+00:00 How do signals work with RxJS?
+00:50 Sample Angular + RxJS application in action
+01:23 Updating to Angular v16 next
+02:20 Retrieving data with RxJS
+04:00 Binding to signals
+04:07 Creating a signal from an Observable
+06:07 What does fromObservable() do?
+06:28 Binding to signal containing the retrieve data
+07:09 Running to validate our changes
+07:37 Reacting to user actions with a signal (instead of a Subject)
+10:08 Reacting to a signal in an Observable pipeline using fromSignal
+11:25 Referencing a signal in a component
+11:53 Using computed signals
+12:56 Binding to signals
+15:04 Running to validate our changes
+15:23 Clearly defining signals for data we want tracked
+15:56 Observables and Signals play well together
+
+
+Transcript
+How do signals work with RxJS?
+hey common questions I hear when talking
+about signals involve rxjs do signals
+replace rxjs is rxjs going away how do
+signals work with rxjs
+to answer these questions let's take an
+angular application that uses rxjs and
+modify it to include signals
+this video assumes you have a basic
+knowledge of signals the new feature in
+angular V16 signals provide more
+reactivity and finer control over change
+detection if you aren't familiar with
+signals consider watching my
+introductory signals video first you can
+find the link to that video in the upper
+right corner here or in the video notes
+let's run it and see this application in
+Sample Angular + RxJS application in action
+action
+here is the welcome page yep we're
+selling Star Wars vehicles click the
+vehicle list option to see the list of
+vehicles select a vehicle the code
+reacts and we see the vehicle detail on
+the right
+we also see the movies that this vehicle
+appeared in cool notice that the list on
+the left now highlights that selected
+vehicle making it easy to see which item
+was selected let's take a look at the
+code
+our first step is to ensure we have a
+
+Updating to Angular v16 next
+version of angular that supports signals
+open 
+the 
+package.json
+ file and we see
+that this application is angular v15
+signals require V16 or higher let's open
+a command prompt and we'll use 
+
+ng update
+
+to update our project to the next
+version ng update at angular CLI at
+angular core dash dash next
+
+this takes a moment to install the new
+packages so we'll use the magic of video
+and zoom ahead a bit and we see the next
+version of angular that it installed was
+next.7
+ which is an early version of
+angular V16 now let's close the terminal
+and close the package.json file before
+we can display the list of vehicles we
+need to retrieve vehicle data so let's
+
+Retrieving data with RxJS
+
+start with the vehicle service
+scrolling down here we see the URL
+endpoint which uses the public SW API SW
+for Star Wars we want the list of
+vehicles we'll ignore the subject for
+now we'll talk about that in a moment
+right now we want to focus on retrieving
+the list of vehicles for display
+here is our HTTP get to get the list of
+vehicles to keep things simple we're
+only getting the first page of vehicles
+from the API let's open the vehicle.ts
+file for a moment the 
+
+swapi API vehicle
+endpoint
+ gives us this information we
+get a count link to the next and
+previous page of data and results which
+is an array of vehicles and here is the
+data we get for each vehicle it includes
+an array of URLs to the endpoint for the
+films the string array doesn't include
+the film names themselves we have to go
+get them
+going back to the service we 
+
+map
+ the
+data to pull just the results which is
+our array of vehicles but there is an
+issue with our data 
+not all vehicles
+have prices since we are selling these
+vehicles we need prices so this code
+checks whether there is a price if not
+it randomly generates a price now
+looking at the vehicle list component
+here we obtain the reference to the
+vehicle style or observable from the
+vehicle service
+and in the template we bind the list of
+vehicles to that observable using an
+async pipe here
+
+this is where signals come in instead of
+
+
+
+Binding to signals
+an async pipe we can bind directly to a
+signal going back to the vehicle list
+
+Creating a signal from an Observable
+component we want a vehicle signal here
+that we can bind in our UI we can
+transform this vehicle observable to a
+signal here 
+or 
+we can transform it to a
+signal in the service let's modify the
+service first let's make our observable
+
+private
+ and we see that generate some
+errors we'll fix those in a moment the
+only purpose of this observable is to
+handle the 
+asynchronous HTTP get
+operation no code outside of the service
+will need access to that observable
+
+instead they'll access our signals so
+let's declare a signal here after the
+observable but instead of creating one
+using the signal Constructor we'll
+create a signal from our observable
+and we need to import from observable
+the automatic import isn't working for
+me here so let's manually add it at the
+top of the file we 
+
+import fromObservable
+
+ from at angular core slash
+rxjs interop
+
+scrolling back down we then create our
+signal from our observable if we hover
+over the signal we see that it is
+defined with the correct type signal of
+vehicle array
+recall from my prior video on signals
+that a signal is synchronous and must
+have a default value so as the second
+argument from observable will define an
+empty array as the initial default value
+hovering over the signal again we now
+see that it is a signal of vehicle array
+or never array that's because the
+compiler can't tell the type of this
+array we can either add as vehicle to
+the array like this or strongly type the
+from observable using the generic
+parameter let's do that
+now we have a signal created from our
+observable from observable does several
+
+
+
+What does fromObservable() do?
+things it 
+
+automatically
+subscribes to
+and unsubscribes from the observable
+
+ and then every time the observable
+emits the signal is modified to that
+emitted value now that our signal is
+ready let's go back to the vehicle list
+component
+
+
+
+Binding to signal containing the retrieve data
+we no longer need this observable I'll
+delete it we can instead Define a signal
+that references the signal in our
+service
+next we need to change the template
+we can 
+
+remove the async pipe and bind
+directly to the signal
+
+don't forget that to read a signal
+we need to first open the box so to
+speak and call it scatter since the
+default value is an empty array let's
+change the 
+ngIf 
+
+to check for some array
+elements we'll call 
+.length 
+
+we need
+to change the 
+ngFor 
+
+as well open
+parentheses to read the signal now let's
+see if it still runs
+Running to validate our changes
+and here is our welcome page click
+vehicle list and we still see our list
+of vehicles only now they are bound to a
+signal instead of an observable with the
+async pipe what does that give us finer
+control over change detection which will
+continue to improve as more signal
+features are released next let's tackle
+the action of selecting a vehicle
+
+
+
+Reacting to user actions with a signal (instead of a Subject)
+
+I'll close the console let's follow the
+vehicle selected action it starts on the
+template here we have a group of buttons
+we bind The Click event to a method in
+the component called unselected and pass
+in the selectedVehicle's name
+in the component here is that method in
+that method we call a method in the
+service and pass in the selectedVehicle
+name
+looking at the service and scrolling
+down here is the method that the
+component calls the method emits a value
+into our observable subject so that the
+code can react to that selection action
+here is the selectedVehicle$
+observable notice it is of type vehicle
+or undefined that's because the find
+operation returns undefined if the
+vehicle isn't found on the list
+
+scrolling up here is the subject that
+reacts to our action let's change this
+subject to a signal
+
+I'll delete the subject
+will instead create another signal down
+here I'll call it 
+selectedVehicle
+
+ and
+set it to a new signal using the signal
+Constructor
+
+we'll set a default value of undefined
+since initially there is no selected
+vehicle
+and we need to import signal notice that
+the type here is now just undefined
+
+let's add the 
+generic parameter to
+strongly type the signal
+it will be 
+Vehicle
+ or 
+undefined
+if no
+vehicle is selected
+
+next we set the signal in the vehicle
+selected method
+
+scrolling down delete the code that
+emits the value into the subject
+will instead set the 
+selectedVehicle
+signal the selectedVehicle signal wants
+the vehicle not the vehicle name so we
+must first find the vehicle with that
+passed in name in the vehicle signal
+I'll declare a 
+constant foundVehicle
+
+we'll read the Signal's value by calling
+it scatter since the value is a simple
+array we use the 
+array find method to
+find the vehicle with that name we then
+update the signal to the resulting
+vehicle using the site method cool
+
+now we no longer need the selected
+vehicle observable
+scroll up and delete it
+but notice that we are still using this
+
+Reacting to a signal in an Observable pipeline using fromSignal
+observable to get the films associated
+with that vehicle how do we fix that
+to retrieve the set of films that the
+vehicle was in we need to 
+call HTTP get
+to get that data 
+
+http.get 
+is an
+asynchronous operation so we want to
+continue to work with observables we can
+transform our signal into an observable
+so we can use it in our observable
+pipeline here 
+instead of the selected
+vehicle dollar observable we'll call
+fromSignal and pass in the name of the
+signal
+then we 
+import fromSignal
+
+that's it that's all we have to do to
+react to the signal and execute an
+observable pipeline 
+
+now let's make this
+observable 
+private 
+just like we did with
+the 
+vehicles$ observable and
+instead expose it as a signal
+we again use from observable this time
+our generic parameters are film array
+both for the signal and its default
+value
+our service now simply exposes three
+signals all of the observable work is
+encapsulated in this service
+
+now we're ready to fix up our component
+
+
+
+Referencing a signal in a component
+
+in the vehicle detail component we'll
+delete the vehicle dollar observable
+gone we'll instead reference the signal
+from the service notice we're
+referencing the signal not reading the
+signal so we 
+don't need the extra
+parentheses here
+
+so here is our vehicle signal which is
+the selectedVehicle or undefined if no
+vehicle was yet selected what about our
+Using computed signals
+pageTitle the pipeline is basically
+using the vehicle to create the
+appropriate pageTitle
+ that sounds like it could be a
+
+computed property 
+
+scroll up
+pageTitle = computed and we need to
+import computed
+then we Define an arrow function with
+our computed property we read the
+vehicle signal
+and if it's not null we assign it to the
+desired string I'll copy it from here
+here we need this .vehicle we need to
+read the signal and it could be null
+so let's add a question mark then we can
+delete the pageTitle observable lastly
+we add a signal for the reference to the
+vehicle's films
+and we can delete the vehicle films
+observable
+now we have a nice clean and simple
+component that provides 
+three signals 
+
+we
+are now ready to update our template in
+the vehicle detail template starting at
+
+Binding to signals
+the top instead of the async pipe we'll
+bind to our vehicle's signal and don't
+forget the open and closing parentheses
+because we're reading the Signal's value
+basically calling the signals getter
+
+then we bind to the pageTitle computed
+signal again needing the open and
+closing parentheses
+
+scrolling down where we display the
+films we 
+change from an async pipe to
+the signal both here in the if statement
+and here in the ngFor
+now because our vehicle is now a signal
+everywhere we refer to vehicle we need
+to change it to vehicle parent paren I'm
+going to scroll up and 
+
+select vehicle
+.then 
+press 
+Ctrl shift l
+
+this sets a cursor on each occurrence
+
+I'll add the opening and closing
+parentheses and 
+a ? since
+the selectedVehicle can be undefined
+
+press escape to close the cursors
+
+I also need to change this one passed in
+to add cart and now because the
+vehicle's signal could be undefined I
+also need to change the add to cart
+method in the component to handle
+undefined 
+
+going back to the component
+will change the parameter to vehicle or
+undefined then 
+add a check for undefined
+before we can try out the vehicle detail
+we have just a little bit of cleanup to
+do in the vehicle list component we
+reference the 
+selectedVehicle$
+observable so we can highlight the
+selectedVehicle in the list we'll
+change that to instead reference the
+selectedVehicle signal and we can
+delete this observable
+in the vehicle list template we use 
+ngClass 
+
+to set the style of the active or
+selectedVehicle we'll change that
+binding 
+remove the async pipe and
+instead reference our signal and don't
+forget the opening and closing
+parentheses to read the signal value
+
+now we're ready to try it out
+
+
+Running to validate our changes
+
+our application came up
+and we have our list of vehicles select
+one and it appears in the detail with
+its list of films pick another one and
+it displays its detail it still works
+looking back at our components we now
+Clearly defining signals for data we want tracked
+have clearly defined signals identifying
+the data we want to track we bind
+directly to those signals
+and in the service we encapsulate our
+observables and expose signals for easy
+access by the component
+we create a signal from an observable
+using from observable and don't forget
+to Define an appropriate default value
+to react to a signal in an observable
+pipeline use 
+
+fromSignal
+as you can see observables and signals
+Observables and Signals play well together
+play well together
+if you have any questions or would like
+to see a video on another signal topic
+please post those questions or
+suggestions in the comments thanks for
+watching and don't forget to like And
+subscribe
+Angular Signals
+Deborah Kurata
+2 / 5
+1
+27:08
+Angular Signals: What? Why? and How?
+Deborah Kurata
+▶
+16:15
+How Angular Signals and RxJS Work Together
+Deborah Kurata
+3
+6:42
+Changes to Signal and RxJS interop in Angular RC 1
+Deborah Kurata
+4
+8:08
+Angular Signal vs BehaviorSubject
+Deborah Kurata
+5
+14:24
+Manage State with Angular Signals
+Deborah Kurata
+
+
+
+Comments
+
+i would like  you to show is / are :
+-  template driven form with signals and if possible with reactive forms as well.
+-  component child: input and output with signals
+
+Regarding forms, in talking to the Angular team recently they have not yet completed their thoughts on how signals will work with template driven or reactive forms. So there isn't anything yet on that topic. I'll keep an eye out for any discussions and post when there is something there.
+
+For parent/child components and input/outputs, they will play well with signals. I'll definitely cover that in an upcoming video.
+
+
+
+
+
+while with RX we are usually retrieving the value from the async pipe to be used in our template, most commonly with *ngIf and using the "as" keyword,  in your video you did not use it when changing to signals. any particular reason?
+
+Another, more general question - does signals offer better performance somehow compared with observables and async pipe? or are they just meant to make our presentational layer cleaner, for example makes the use of  markForCheck  from within the component almost entirely redundant, since we can use signal instead?
+
+I couldn't but notice the similarity between MOBX and signals, are signals inspired from it, but built in and work with angular  natively?
+What was the main reason Angular team decided to support signals? 
+
+Finally, do you think that in the future angular could be ridding zonejs for good?
+
+-
+
+"you did not use it" - Are you referring to the "as" clause? As of now, signals don't support an "as" clause.
+
+Moving away from zone-based components to signal-based components means that the app will load more quickly (won't have to load zone.js). It will be smaller (won't have to load zone.js). And the app will feel more performant because it won't run change detection when it doesn't need to. This resource provides more information: https://github.com/angular/angular/discussions/49684
+
+Yes, signals have been used by several other frameworks, such as Vue. You can implement the basic concept of signals in any language. Here is an article about implementing it in JavaScript: https://medium.com/codex/making-a-case-for-signals-in-javascript-edf9807f30dc
+
+The above referenced github link also outlines the reason the Angular team decided to support signals ... including their thought process and what other technologies they considered.
+
+Yes. In the FAQ in the above referenced document, the Angular team states that they do hope at some point in the future to be able to run "zoneless".
+
+=
+
+Could you show an example of how you could update the signal with new information from the server?  
+For example, if a new vehicle became available, how would you have a 
+button on the screen force the vehicles to refresh from the server?  My current attempt is to use a Subject that can be "nexted" in the vehicles$ observable chain.
+
+-
+
+you can definitely replace the Subject with a signal. Then use toObservable to include the signal in your pipeline.
+
+I put together a quick little demo here: https://stackblitz.com/edit/angular-signals-rxjs-deborah-hk2fah
+
+Basically:
+COMPONENT:
+  onRefresh(): void {
+    // Change the value of the signal
+    // from true to false or false to true
+    this.vehicleService.refresh.update(r => !r);
+  }
+
+SERVICE:
+refresh = signal(true);
+
+  private vehicles$ = toObservable(this.refresh).pipe(
+    switchMap((doRefresh) =>
+      this.http.get<VehicleResponse>(this.url).pipe(
+        catchError(this.handleError),
+        tap(() => console.log('Retrieved the data')),
+      )
+    )
+  );
+  vehicles = toSignal<Vehicle[], Vehicle[]>(this.vehicles$, {
+    initialValue: [],
+  });
+
+=
+
+Will Signal have an impact on how we use Stores for state management? 
+
+what about error handling and would like to display those errors on the component template like we have here errormessage proerty.
+
+-
+
+error handling could use some attention! Some suggestions I've see use try/catch blocks, but those don't work with a declarative approach.
+
+Another suggestion I've seen is to wrap the returned object in another object that has the object and an error message. 
+
+But AFAIK, nothing has been finalized on this yet. I'll work on a video as soon as I have more info.
+
+=
+
+Suggestion: Video about the replacement of the behaviorSubject in a service by a signal
+
+-
+
+It wouldn't be all that different from the Subject example provided in this video. But I'll put something together.
+https://youtu.be/a6XKMj-WRhM
+
+Signal + rxjs is cool. And signal with ngRX. Is a good combination?
+
+Love
+

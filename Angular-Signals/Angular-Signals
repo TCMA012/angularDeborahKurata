@@ -1,0 +1,53 @@
+Deborah Kurata
+angularDeborahKurata
+https://www.freecodecamp.org/news/angular-signals/
+https://stackblitz.com/edit/angular-signals-deborahk
+https://www.youtube.com/@deborah_kurata/playlists
+
+Manage State with Angular Signals
+reactive programming in a CRUD application
+https://github.com/DeborahK/Angular-Signals
+https://www.youtube.com/watch?v=04avEeicarQ
+
+How you save depends on your requirements.
+
+If you want to "auto save" after each operation, you could add the post, put, or delete directly in the add/update/delete methods.
+
+If you want the user to control the save via a save button, then you would call a save method in the service to perform the save.
+
+Depending on your backend, you could pass the entire array back to the backend. 
+Or you may need to add an "action" to the data array so that on the save the code can loop through the array and know which elements are new, which are updated, and which are marked for deletion.
+
+
+
+cdm
+cd angularDeborahKurata/Angular-Signals/DeborahK_Angular-Signals/Angular-Signals-main
+
+cd swVehicles-simple
+
+    use signal
+https://swapi.py4e.com
+The Star Wars API
+
+
+
+cd swVehicles-no-signals
+
+
+
+cd swVehicles-with-signals
+
+cd src/app
+
+
+private url = 'https://swapi.py4e.com/api/vehicles';
+The Star Wars API
+Signals for state management (with RxJS/Observables for async operations)
+
+
+grep -r route *
+
+grep -r routerLink *
+
+
+

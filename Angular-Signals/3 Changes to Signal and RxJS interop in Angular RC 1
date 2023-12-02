@@ -1,0 +1,303 @@
+3 Changes toSignal and RxJS interop in Angular RC 1
+Deborah Kurata
+Apr 18, 2023  Angular Signals
+
+Angular v16.0.0-rc.1 includes some important changes to RxJS interop with signals:
+
+- Renamed fromObservable and fromSignal
+- Changed how the fromObservable default works
+- Improved error handling
+
+We take a look at these changes and apply them in a sample application.
+
+This video assumes you have a basic knowledge of signals, the new feature in Angular v16. Signals provide more reactivity and finer control over change detection. If you aren't familiar with signals, consider watching my introductory signals video first. You can find the link below.
+
+Links
+Angular Signals: What, Why, and How?:    • Angular Signals: ...  
+
+How Angular Signals and RxJS Work Together:    • How Angular Signa...  
+
+Sample code: 
+
+Content
+00:00 Angular v16 Release Candidate 1 Update
+00:43 Updating to Angular v16 RC 1
+01:14 fromObservable is now toSignal and fromSignal is now toObservable
+01:49 Creating a signal from an Observable with toSignal
+02:03 Using toSignal with its default initial value (undefined)
+02:47 Using toSignal with a custom initial value
+03:45 Creating an Observable from a signal with toObservable
+03:56 Error handling: Catching http errors when reading signals
+05:28 Running to validate our changes
+05:50 Validating our error handling
+06:22 This brings the application up to date with RC 1
+
+
+Transcript
+Angular v16 Release Candidate 1 Update
+hey I wanted to post a quick update
+about signals and rxjs angular is
+currently on release candidate rc1 if
+you try it out you'll see some changes
+on how signals work with rxjs they
+renamed 
+fromObservable
+ and 
+fromSignal
+
+changed how the 
+fromObservable 
+default
+works and improved exception handling
+for an overview of signals in rxjs check
+out the how angular signals in rxjs work
+together you can find the link to that
+video in the upper right corner now or
+in this video's notes 
+let's take a look
+at how the release candidate changes
+affect our rxjs interop with signals
+here I have the same project from the
+Updating to Angular v16 RC 1
+above referenced video our first step is
+to update to the latest release
+candidate version I'll open 
+
+package.json
+
+you'll see that I've already made the
+necessary modifications I changed the
+version of the dependencies to 
+-rc.1
+and the version of the dev dependencies
+to 
+-rc.0 
+
+I then ran 
+npm install
+
+ to
+update the packages with the RC
+installed close the 
+package.json
+
+ file
+fromObservable
+ is now 
+toSignal
+
+ and 
+fromSignal
+ is now 
+toObservable
+
+
+now let's navigate down to our vehicle
+service
+notice the errors here in our import
+statement the 
+fromObservable 
+is now
+called 
+toSignal
+
+and the 
+fromSignal
+ is now called 
+toObservable
+
+using the two prefix instead of the from
+prefix helps us think about what we are
+creating instead of what we are creating
+it from we create a signal with two
+signal and create an observable width 
+
+toObservable
+
+ now let's scroll down to
+where we are using these two features
+Creating a signal from an Observable with toSignal
+here we create a signal from an
+observable this fromObservable is now
+toSignal defining the type we are
+creating
+we have two options for how we create a
+signal with toSignal we can pass a
+
+
+
+
+Using toSignal with its default initial value (undefined)
+
+single argument just our observable for
+example I could create the vehicle
+signal like this
+
+I use toSignal give it a single
+generic parameter which is our vehicle
+array and pass in our observable
+hovering over the signal we see that the
+typeof signal is vehicle array or
+undefined that's because two 
+signal
+automatically provides a default of
+undefined
+ so we don't have to specify
+one
+that default is used as the signal value
+until the observable emits something
+this is a common use case and is how the
+async pipe works but in our case we want
+Using toSignal with a custom initial value
+a default of an empty array so two
+signal provides another way to create
+the signal I'll delete the new line of
+code in this toSignal instead of
+passing the default as a second
+parameter we pass an options object here
+we set initial value equal to empty
+array
+so 
+toSignal
+ gives us the option to use
+undefined as the default or use the
+options parameter to provide our own
+default hovering over the signal we see
+that it is a signal of type vehicle
+array and we don't need to worry about
+the value being undefined
+jumping down to our films we'll make the
+same change fromObservable becomes to
+signal
+and we change the second argument to an
+object
+initial value colon empty array so
+that's how we create a signal from an
+observable
+Creating an Observable from a signal with toObservable
+next we'll modify our fromSignal to toObservable again focusing on what we are
+creating
+that's all we need to change there
+
+
+
+Error handling: Catching http errors when reading signals
+
+lastly let's take another look at our
+error handling here we issue our HTTP
+get request and catch any error in our
+handle error function we rethrow the
+error but looking at our vehicle list
+component
+we have nothing here to catch that error
+let's change our vehicle's signal to a
+
+computed property to catch any error
+from the HTTP request we'll delete the
+expression to the right of the equals
+then create a 
+computed signal
+then we Define the 
+computed expression
+first we'll add a try catch block as its
+name suggests that try block tries a set
+of code and if that code generates an
+error it executes the code and the catch
+block 
+inside the try block we 
+return the
+signal value from the service don't
+forget the parentheses to read the
+signal value in the 
+catch we specify a
+variable to hold the error we are
+catching then in the catch block we set
+the error message string that is bound
+in our template if the 
+
+typeof exception
+
+is a string 
+we assign that string
+otherwise we assign the general error
+message
+we 
+return an empty array because we
+assume of the request to read the signal
+generated an exception we don't have the
+list of vehicles
+
+now we have a way to catch errors when
+reading signals there are additional
+techniques for handling errors with
+signals that I'll cover in a later video
+
+Running to validate our changes
+let's run it and see if it still works
+and there is our welcome page click
+vehicle list and we see our list of
+vehicles click on a vehicle
+and we see the details including the
+films
+click another vehicle and we see its
+details it still works
+Validating our error handling
+now let's cause an error I'll go back to
+the service
+scroll up
+and 
+misspell the URL 
+
+I'll add a number
+after vehicles
+and look at our page we see our 
+error
+message 
+just as we intended but we may
+want to work on making that error
+message a bit more user friendly
+and don't forget to remove the one so
+our code works again
+
+I'll go back in and change it
+and bring the page back up and here are
+our vehicles
+This brings the application up to date with RC 1
+so that brings our application up to
+date with the current release candidate
+if you have any questions or would like
+to see a video on another signal topic
+please post those questions or
+suggestions to the comments thanks for
+watching and don't forget to like And
+subscribe
+Angular Signals
+Deborah Kurata
+3 / 5
+
+
+Comments
+
+Usually when learning JS some of us are taught that setting a value to undefined is a "bad practice". Why is undefined allowed here for Signals ? (PS I have now seen multiple videos that set the signal values to undefined and was wondering)
+
+-
+
+From  the MDN docs: 
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined
+
+"A variable that has not been assigned a value is of type undefined. A method or statement also returns undefined if the variable that is being evaluated does not have an assigned value. A function returns undefined if a value was not returned."
+
+It's the last sentence there that makes sense in this case. Until the Observable emits, the signal has no value. So it makes sense that it reads as "undefined".
+
+Also, our code doesn't set the value to undefined. The signal default is set to undefined (just like a declaring a variable with no assigned value).
+
+var x; // x is undefined
+
+vehicles = toSignal<Vehicle[]>(this.vehicles$); // before the observable emits, vehicles is undefined
+
+-
+
+we are not setting a value, simply letting future readers of that signal know that it has no value yet
+
+
+

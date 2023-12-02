@@ -1,0 +1,884 @@
+Unlocking the Power of Angular Signals + RxJS Practical Applications
+Unlocking the Power of Angular Signals + RxJS: Practical Applications
+Deborah Kurata
+May 23, 2023
+#CRUD #angular #demo
+Now that signals are available in Angular version 16, let's walk through how to use them in a more "real world" application.
+We'll create signals and computed signals. We'll issue HTTP requests and emit the response using an RxJS Observable. Then create a signal from that Observable.
+We react toSignal changes and create an Observable from a signal. That way we can pipe the signal value through an Observable pipeline and retrieve data based on changes to that signal.
+Because signals created from Observables are read-only, we also look at how to 
+create writeable signals so we can modify our retrieved data.
+This video is a live-coding demo. If you are new to Angular signals, check out my introductory signals video that covers the what, why, and how. You can find the link below.
+
+Links
+Angular Signals: What, Why, and How?:    • Angular Signals: ...  
+How Angular Signals and RxJS Work Together:    • How Angular Signa...  
+Signal vs BehaviorSubject:    • Angular Signal vs...  
+switchMap vs concatMap vs mergeMap ... Oh My!:    • switchMap vs conc...  
+
+Sample code:
+https://github.com/DeborahK/Angular-Signals/tree/main/taskList-begin
+
+https://github.com/DeborahK/Angular-Signals/tree/main/taskList-end
+
+Content
+00:00 Unlocking the Power of Angular Signals + RxJS
+00:32 The application in action
+01:12 The code for the application
+01:33 Using the inject function
+01:58 Creating and setting a signal in the component
+03:58 Creating a signal from an Observable (HTTP GET)
+06:59 Reacting to a Signal and issuing an HTTP GET request
+11:30 Computed signals
+13:40 Mutating a signal
+13:58 toSignal is readonly!
+15:38 Exposing signals in services
+
+
+
+Transcript
+Unlocking the Power of Angular Signals + RxJS
+ now that signals are available in
+angular version 16. let's walk through
+how to use them in a more real world
+application this video is a live coding
+demo if you are new to angular signals
+check out my introductory signals video
+that covers the what why and how you can
+find the link to that video in the upper
+right corner now or in this video's
+notes before we jump into the code let's
+take a quick look at what we're building
+
+
+The application in action
+
+here is a list of user information for
+all of our team members 
+click on an
+entry and we see 
+the list of tasks for
+that user this task data is coming from
+a live public endpoint and 
+displays the
+tasks in Latin 
+notice also that the
+selected user is highlighted on the left
+to show which user is selected 
+the list
+on the right displays each task and
+their status 
+click the complete button
+on the right to Mark a task as complete
+
+notice that the title of this component
+reacts to the change and 
+keeps count of
+the number of completed tasks 
+with that
+let's write some code
+
+The code for the application
+
+to save some time I've built the
+structure of the application along with
+the templates that way you don't have to
+watch me type HTML 
+we'll add the code
+for our components and services 
+if you'd
+like to code along with me you can find
+the shell of this application at the URL
+listed below
+https://github.com/DeborahK/Angular-Signals/tree/main/taskList-begin
+
+
+
+
+let's start with the user list component
+
+Using the inject function
+here at the top of the class I've
+already injected the user service using
+the inject function which was new in
+angular version 14 instead of injecting
+the service dependency as part of the
+Constructor 
+we can inject it with the
+inject function
+this is a bit easier
+looks a bit nicer and is a bit more
+explicit making it more obvious that we
+are injecting a dependency 
+
+Creating and setting a signal in the component
+we have the
+page title which doesn't change so we
+don't need a signal for that 
+we do want
+to manage a set of users 
+so let's create
+a signal 
+we declare a 
+users 
+variable
+and call this signal creation function
+passing in a 
+default of an empty array
+and we need to 
+import signal
+
+hovering over we see that the signal is
+not of the correct type so let's use the
+generic parameter to specify a 
+user
+array
+and we need to import user as well
+
+next we want to track the selected user
+let's just track the 
+selected user's ID
+selectedUserId
+we declare a variable and call the
+signal Constructor specifying a 
+default
+value of zero 
+here we assume 0 is 
+no user selected
+
+lastly we want to create a function that
+is executed when a user is selected
+we'll call it 
+onSelected 
+and pass in the
+userId in the function 
+we'll set the
+selectedUserId signal to the selected
+user's ID 
+we call this function from the
+template using the click event handler
+
+speaking of template let's take a quick
+look at the user list component template
+at the top 
+we bind to the page Title
+
+Here in the 
+ngIf 
+we read the user
+signal and 
+check its length 
+we don't
+display the list of users if we don't
+yet have any users in the list 
+
+the 
+ngFor
+lives through the users and the user
+signal and here we use 
+ngClass 
+we
+change to active for the button with the
+userId that matches the selected user
+ID signal 
+
+let's run it
+and we have no users that was expected
+because we're currently setting the
+signal to an empty array 
+we need to
+issue an HTTP get request to get the
+user data 
+
+Creating a signal from an Observable (HTTP GET)
+in the user service 
+we inject the HTTP
+client service and Define the URL 
+notice
+that this is a 
+public and free data endpoint 
+we'll declare a variable 
+users$ 
+and set it equal to 
+this.http.get 
+
+we want the returned response
+in the shape of a user array so that's
+our generic parameter and we pass in the
+URL we could add error handling here as
+desired
+but instead of unobservable we really
+want to work with signals 
+so let's
+create a user signal and use 
+toSignal
+to create a signal from the users$ observable
+
+notice when I hover over users it
+displays signal of user array or
+undefined
+where did that come from 
+
+every signal
+needs to always have a value 
+when
+issuing an HTTP request we don't
+immediately have the data so we need a
+default value by default 
+the default
+value is undefined 
+but we don't want to
+have to worry about handling undefined
+in the template 
+
+so let's 
+add our own
+default value by 
+setting the second
+argument of 
+toSignal will pass in an
+object and set the 
+initialValue
+property to an empty array of type user
+array
+
+checking the data type we now have a
+signal of User array
+since we're working with signals we can
+add private to our observable 
+any
+component needing our user data will
+instead access the signal
+
+we really want to share the 
+selectedUserId 
+signal we created on the
+component so we'll move it here
+and we'll create a method to set the
+signal here as well
+
+setSelectedUser 
+pass in the user's ID
+and then set that ID into the 
+selectedUserId 
+signal
+
+notice that if we hover over users we
+see that it is a signal 
+if we hover over
+selectedUserId 
+we see that it is a
+writable signal 
+
+signals we create from
+an observable are read only 
+that could
+be a problem if you want to update any
+of the retrieved data well look at this
+issue a bit further later in this video
+
+for now back in the component
+will change this 
+users signal 
+to instead
+reference the service
+same with the 
+selectedUserId 
+signal
+will instead reference the service and
+we'll change the method to delegate
+responsibility to the service calling it
+setSelectedUser 
+method
+
+let's bring up the browser and we see
+the list of users 
+also notice that when
+we click on a user 
+the style changes to
+identify the selected user but we don't
+yet see the list of tasks 
+
+let's work on
+that next
+
+
+Reacting to a Signal and issuing an HTTP GET request
+we'll open the ToDo service that
+manages the list of tasks for a user
+at the top we 
+inject the HTTP client
+service and the user service since we'll
+want to access the 
+selectedUserId
+signal
+will react to changes to that signal and
+get the tasks for the selected user here
+we have the URL 
+
+notice that it requires
+a parameter defining the userId of that
+selected user
+to get the tasks we'll declare a
+variable 
+userTasks$ 
+and issue an
+HTTP get request
+
+we want the data in the shape of a 
+ToDo
+array so that's our generic parameter
+and we pass send the URL plus the user
+ID parameter
+but wait how do we get this 
+userId 
+
+we
+can read it from the signal
+let's comment out this HTTP request for
+a moment
+we want to react when the selected user
+ID signal changes and then issue an HTTP
+request to get the tasks for that user
+
+to do that we use 
+toObservable 
+to
+create an observable from the user
+service 
+selectedUserId signal 
+when the
+signal changes this observable emits a
+value that we can react to in an
+observable pipeline
+inside that pipeline we'll use 
+switchMap 
+so we can switch to the selected
+users tasks if you aren't familiar with
+switchMap 
+check out my video on 
+switchMap mergeMap and concatMap linked in
+the upper right corner and in this
+video's 
+
+notes
+the 
+toObservable emits the userId
+then we can cut and paste this HTTP
+request we now have the userId we need
+for our URL parameter
+we want the result as a signal so we'll
+declare a 
+userTasks 
+variable and use 
+toSignal 
+to create a signal from the
+resulting HTTP response 
+
+we again want
+our own default value so we'll use the
+initialValue 
+property like we did
+earlier and 
+we can 
+Mark our observable
+as 
+private 
+so any component uses the
+signal
+
+lastly we want a 
+markComplete 
+method
+this method takes in a task and marks it
+as complete 
+you may have noticed that we
+aren't using the signal here we'll talk
+more about that in a moment
+
+now let's look at the user to Do's
+component
+here we inject the to do service and set
+the page title
+will create a 
+userTasks signal that
+references the signal from the service
+note that we 
+could have our template
+access the signal directly from the
+service but 
+my personal preference is to
+have the template talk only to the
+component 
+so we reference the signal
+from the service here
+
+we also want a 
+markComplete method that
+takes in a task 
+it calls the markComplete from the service
+
+lastly we'll look at the template I had
+commented it out so that we could run
+without a bunch of syntax errors 
+I'll
+uncomment it now in the 
+ngIf 
+we read the
+userTasks signal and 
+check its length
+we don't want to display a list of tasks
+if the user doesn't have any in the 
+ngFor
+
+we read the signal and loop through all
+of the userTasks displaying the task
+title and completed status and 
+if the
+task isn't completed we display a Mark as
+complete button this button click event
+calls our markComplete method passing
+in the task
+
+looking at the browser
+we again see the list of users
+select a user and we see the list of
+tasks 
+
+when we click on the 
+Mark as complete
+button the task is marked as complete
+and the button no longer appears but
+note that we don't currently have any
+code to save our changes 
+so if we pick a
+different user and come back our changes
+aren't saved
+we could add code to our 
+markComplete
+method and our service to issue an HTTP
+request to perform an update but 
+this
+endpoint we are using is public and not
+updatable
+
+there is one missing feature yet to
+implement 
+we aren't displaying the total
+number of completed items in the title
+
+
+looking at the user to Do's component
+Computed signals
+
+let's change the hard-coded page title
+to a title that displays the number of
+completed tasks 
+will comment out the
+hard-coded assignment
+
+first we create a 
+completedCount
+computed signal we use the 
+computed
+creation function and add the associated
+import 
+
+we read the array from the user
+task signal and filter it to only those
+items with completed set to true 
+then we
+call .length to count the number of
+completed items
+
+next we'll create a page title computed
+signal here we'll use the 
+computed
+creation function to build the title
+string we use the 
+backtick to create an
+interpolated string 
+we'll specify user
+tasks - and use the 
+$ 
+and
+curly brace to read the 
+completedCount
+signal 
+we then add completed to finish
+the title
+
+do you think this is going to work
+spoiler alert it won't but let's give it
+a try
+
+we have the list of users 
+pick a user
+and see their list of tasks but what is
+this Godly book here at the top
+that's what we see if we display a
+signal instead of reading the signal
+
+going back to our code
+let's open the template
+here instead of binding to a normal
+variable we need to read the signal
+let's try it again
+
+we have the list of users 
+pick a user to
+see their tasks and we see the number of
+completed tasks 
+clicking on the button
+marks the task as completed 
+it does
+not change our title
+our page title is not notified of the
+change so it doesn't display the updated
+number of completed items 
+
+any idea why
+
+let's look back at the to do service
+in the markComplete method we are
+modifying the property directly not
+using the signal so any code that
+depends on the signal will receive
+notification of the change
+
+
+
+Mutating a signal
+
+let's delete that
+
+we instead use the signal and call its
+mutate 
+method the 
+mutate 
+method allows
+us to modify the content of a signal and
+provides notification that the signal
+has changed
+
+but notice that we are getting a syntax
+error here
+
+toSignal is readonly!
+
+property mutate does not exist on type
+signal that's because 
+a signal created
+from an observable is read only
+it's not a writable signal 
+
+if you're
+like me you can think of numerous use
+cases where you are getting data from an
+HTTP request and want to update it so
+until there are signal features to
+support this scenario 
+what can we do
+
+one option is to create a 
+writable
+signal 
+we'll call it 
+userTasks 
+call the
+signal creation function 
+then import
+signal 
+will initialize it to an empty
+array 
+set the appropriate generic
+parameter and we'll rename this other
+signal here to 
+readOnlyUserTasks
+
+next we pipe our HTTP response through a
+tap operator 
+import tap
+and Center signal we get the set of
+tasks and we use this .
+userTasks.set 
+to set that set of tasks
+into the signal 
+
+now the code in our 
+markComplete 
+method no longer has a syntax
+error
+so we create a writable signal
+when we retrieve the data 
+we set that
+writable signal to the return set of
+tasks we leave our 
+toSignal 
+here
+because 
+toSignal 
+will automatically
+subscribe and unsubscribe for us
+
+
+going back to the browser
+we pick a user
+we see their set of tasks and now when
+we Mark a task as complete
+our completedCount on our header works
+as expected success
+
+
+Exposing signals in services
+looking back at the code we have a user
+service that exposes a read-only user
+signal
+and a writable selectedUserId signal
+WritableSignal
+
+and we have a ToDo service that exposes
+a writable userTasks signal
+we can use that signal to work with the
+user's tasks 
+we react to changes in the
+selectedUserId signal 
+issue an HTTP
+request with a parameter and set the
+appropriate tasks in our signal
+
+
+
+44 Comments
+
+Alisha Robinson
+In the TodoService why did you convert the selectUserId to an observable and pipe it? 
+Could you not have used computed?  
+The computed would be making an http request call with the given  selectUserId signal value. Each time the signal updates the computed would run.  If this is not possible let me know because I am trying to replace rxjs/observables as much as possible with angular signals.
+
+
+Yeah, using computed seems like an easier choice. 
+But it doesn't work. 
+Currently, the technique I demonstrated is the code required to react to a signal and issue an http request.
+
+We can't use computed to issue an http request because 
+issuing a request is a "side effect" and is 
+asynchronous. 
+From the Angular team: 
+"The computation function is expected to be side-effect free: 
+it should only access values of the dependent signals (and / or other values being part of the computation) and avoid any mutation operations. 
+In particular, the computation function should not write to other signals (the library's implementation will detect attempts of writing to signals from computed and raise an error)." 
+Reference: 
+https://github.com/angular/angular/discussions/49683
+
+Calling http is definitely a side-effect and 
+should not be within a computed function.
+
+More pragmatically, the syntax would be a bit challenging. Seems at first glance that something like this should work:
+
+userTasksObs = computed(() =>
+    this.http.get<ToDo[]>(this.todoUrl + this.userService.selectedUserId()));
+
+But this gives you a 
+Signal<Observable<ToDo[]>>.
+
+We'd then have to somewhere read the signal and subscribe to the Observable to get the data.
+
+    this.toDoService.userTasksObs().subscribe(
+      tasks => this.toDoService.userTasks.set(tasks)
+    );
+
+We could add the subscribe to the computed():
+
+  sub = computed(() =>
+    this.http.get<ToDo[]>(this.todoUrl + this.userService.selectedUserId()).subscribe());
+
+But then we'd have a 
+Signal<Subscription> ... 
+which isn't what we want either. We'd still need to pipe the response through a tap to get at the response data. 
+
+  sub = computed(() => 
+    this.http.get<ToDo[]>(this.todoUrl + this.userService.selectedUserId()).pipe(
+      tap(tasks => this.userTasks.set(tasks))
+    ).subscribe());
+
+And even then, this code won't execute unless the sub() signal is read somewhere: 
+this.toDoService.sub().
+
+Bottom line ... we don't end up with anything easier and 
+"break" the rules regarding a computed and side effects.
+
+(I wanted to think through this as well ... thanks for prompting the question!)
+Deborah Kurata
+
+There have been some thoughts about 
+using an effect instead of the code I presented:
+
+  tasksEffect = effect(() =>
+    this.http.get<ToDo[]>(this.todoUrl + this.userService.selectedUserId()).subscribe(
+      tasks => this.userTasks.set(tasks)
+    )
+  );
+
+But then we still have to manage the subscription. 
+(Plus some Angular team guidance has suggested not using effect to work with RxJS...)
+
+
+
+
+Stuart Manton
+Hi Deborah, I have been following all of your videos and PS courses on observable data services and we have been implemented them in a new project. It is a different paradigm and working  well so far. I am struggling with one aspect. 
+One form is loaded with the selected object, lets call it a selected user. We have a custom validator to ensure that another field isn't set to the same value. So in the example for the user it may be a manager which would be selection of other users. 
+It doesn't make sense to make someone their own manager. 
+There is a custom validator on the form to ensure you are not selecting the same user as the manager. The select user id is passed to the custom validator as a parameter, and the validator. I am struggling to get this working as the form and validators are created in OnInit and the selected user is subscribed to in the async pipe. 
+Do you have any example of this scenario?
+
+Deborah Kurata
+Would it be possible to mock up this scenario (not the whole app, just the described feature) in a Stackblitz? 
+Then I could take a clearer look at the specifics of your scenario.
+
+Stuart Manton
+@Deborah Kurata  I will have a go at putting together a simple scenario, thanks
+
+
+
+Thierry Lévèque
+It is working but I don't like letting unused field like your 
+readOnlyUserTasks = toSignal(this.userTasks$, { initialValue: [] as ToDo[] }); 
+
+just because it will automatically subscribe to the observable. I think a more cleaner approach (and also more easy to understand) is to add 
+this.userTasks$.pipe(takeUntilDestroyed()).subscribe()
+inside a constructor.
+
+
+Yes, there are many ways to accomplish the goal here. 
+Another is to use an effect():
+
+  tasksEffect = effect(() =>
+    this.http.get<ToDo[]>(this.todoUrl + this.userService.selectedUserId()).subscribe(
+      tasks => this.userTasks.set(tasks)
+    )
+  );
+
+And this could benefit from the takeUntilDestoyed() as well.
+
+
+ddd djj
+Hello 
+Is there any intentions for a new Angular 16 course on pluralsight?
+
+The entire Pluralsight library is currently being updated to Angular v16. The courses should start appearing in the library in the next few months.
+
+(Pluralsight retired the "Getting Starting", suggesting that it was confusing to have both a "Getting Started" and a "Fundamentals".)
+
+
+
+Alexander Cisneros Vinelli
+Hi Deborah. This particular line 
+'this.userTasks.mutate(() => task.completed = true)' 
+in the 
+ToDoService 
+blew my mind. It works, it updates the intended ToDo, 
+but how? 
+You're not using the array that the mutate method receives? 
+Is it because the reference passed to the 
+markComplete 
+method is the same as one the array items inside the userTasks signal and so changing one, changes this other?
+
+=
+
+Yes! 
+We are working with object references here. So updating the object affects all places that it is referenced.
+
+Think of it this way, you are on the list (an array) of "software developers" in your company. If you later spill coffee on your shirt, the "you" that is in that array of "software developers" has coffee on his shirt. LOL.
+
+Some have suggested that it may be better practice to actually re-find the item in the array and update that. So what your team selects as "best practice" is up to the team.
+
+=
+
+Yes, as usual, there's more than one solution. This is the solution I came up with, before seeing yours:  
+this.userTasks.update((tasks) =>
+      tasks.map((t) => (t.id === task.id ? { ...t, completed: true } : t))
+);   
+I don't know. 
+Being used to enable OnPush on most on my components, it feels kinda wrong whenever I see the word MUTATE
+
+Do you know if it's OK to use 
+mutate 
+with libraries that enforce us to work with immutables(NGRX)? 
+Or in those cases, it's best to stick to update? 
+
+=
+
+It's going to be interesting to see how this will all come together moving forward.
+
+The Angular team is working toward making the 
+*ngFor 
+style looping reactive at the row level. So it would be much more performant to mutate the one row that changed (and have change detection only modify that one row) than to update the entire array (as is the style with NgRx) and have the entire array of items redisplayed.
+
+I know that the NgRx team is closing watching signals and has already made some changes in support of signals. So it will be interesting how it changes how we think about mutable/immutable data.
+
+
+
+Renátó Bogár
+Could you make a full CRUD operations video with rxjs + signals + REST endpoint, like a real life example ? 
+
+Great suggestion! Thanks!
+
+
+
+Mvishal Shukla
+Hello I want you to create a video tutorials on angular element using  (Web component) standalone component. I think that will help a lot   in simple html project where i can use angular elements
+
+
+Thank you for the suggestion. Here is some information that may be useful: 
+https://www.angulararchitects.io/aktuelles/angular-elements-web-components-with-standalone-components/
+
+
+
+Paul H
+do you know if we need to wait until ng17 b4 signals comes out of dev preview? loved the vid, practical examples really bring it home for me 
+
+The team is saying you can use them now ... but suggest only on smaller projects as the API could change.
+
+I haven't heard any official word on when they will be taking them out of developer preview. I know they are working on numerous additional features, such as signals in @input.
+
+
+
+
+Leonides Muguercia
+My suggestion is to show how can we handle an http request error from the component and in the same time usa a signal from the service. 
+
+
+I've been experimenting with some error handling strategies. If you want to see them now, you can find them here:  
+https://stackblitz.com/@DeborahK/collections/angular-signal-error-handling-research
+
+
+Marcus H
+I have a question about this interop between RxJS and Signals. Is this how it is supposed to work? Manually converting Observables, tapping into streams and setting Signal as a side effect? 
+I would appreciate some more official information about how to handle the delegation from the async API calls to the client services which can then exclusively use Signals. 
+
+Angular v16 is a "developer preview" of signals. It provides us an opportunity to try them out and provide feedback.
+
+Right now, to 
+create a writeable signal from an RxJS observable, the approach I presented in this video works. I've been talking to several Angular team members about a 
+better solution for creating writeable signals from an http response, and they have some ideas about additional features to make this very common task easier. 
+
+For "official information" ... you can read the Angular team signal discussions here: 
+https://github.com/angular/angular/discussions/49685
+
+
+liorcaspi9
+you said to leave the "toSignal" because it subscribes. 
+Does it unsubscribe (If we use it in a component for example)?
+
+Yes, 
+toSignal() 
+automatically subscribes when the toSignal() code is executed and 
+unsubscribes when the class goes out of scope.
+
+For more information, see the "Manage the subscription" topic under this link: 
+https://github.com/angular/angular/discussions/49681
+
+
+

@@ -1,0 +1,1081 @@
+Angular Signals: What? Why? and How?
+Deborah Kurata
+Apr 3, 2023
+Angular Signals
+An exciting new feature is coming to Angular: signals! Starting in Angular v16, Angular developers can leverage the power of signals to create more reactive applications. Signals provide a new way for our code to inform our templates (and other code) that our data has changed, offering more granular control over how and when updates are propagated and improving change detection. …
+
+Links
+My completed Stackblitz: 
+https://stackblitz.com/edit/angular-signals-deborahk?file=src%2Fmain.ts
+
+Content
+00:00 Introduction to Angular Signals
+00:51 Why use signals?
+03:58 What are signals?
+06:16 How to create signals?
+06:34 Where to use signals?
+06:54 Creating a signal
+09:10 Reading a signal
+09:14 Setting a signal
+11:18 Signal methods: set, update, mutate
+12:06 Defining a computed signal
+13:14 Using an effect for side effects
+14:36 Signals and templates
+15:15 Current state of signals
+15:36 Suggestions for how to use signals
+16:00 Demo
+
+NOTES
+There is a typo on the slide at time code 2:12. The exPrice = price * quantity calculation should be exPrice = this.price * qty.
+
+😊About Me
+I'm Deborah Kurata
+I'm a software developer and YouTube content creator.  I speak at conferences such as VS Live and ng-conf. I write articles for freeCodeCamp. And I'm a Pluralsight author with courses in the top 10 most popular (out of 10,000+) over the past 5 years. For my work in support of software developers, I've been recognized with the Microsoft Most Valuable Professional (MVP) award, and I'm a Google Developer Expert (GDE).
+
+Contact me on Twitter: https://twitter.com/DeborahKurata
+Find my Pluralsight courses: https://www.pluralsight.com/profile/a...
+Access my freeCodeCamp articles: https://www.freecodecamp.org/news/aut...
+View my YouTube content:    / @deborah_kurata  
+
+Transcript
+Introduction to Angular Signals
+ an exciting new feature is coming to
+angular signals
+signals provide a new way for our code
+to tell our templates and any other code
+that our data has changed this improves
+angular's change detection and makes our
+code more reactive what do we mean by
+that we'll see that in a moment
+signals are a new feature available for
+developer preview and angular V16 due
+out in May of this year
+so 
+what are angular signals 
+why would we
+use them and how do we create read and
+change them and react to those changes
+let's answer each of these questions and
+walk through a Hands-On demo we'll start
+with the why
+
+Why use signals?
+let's say we are building a feature to
+do some simple math here we set x equal
+to 5 y equal to 3 and Z equal X Plus y
+so what is z well if you're arithmetic
+is anything like mine I come out with
+eight
+but what if we then change X to 10 now
+what is z?
+
+if you said eight you are right the
+value of Z is assigned when the
+expression is first evaluated it does
+not react to changes in X or Y
+but one of the reasons we do angular is
+because we want a 
+reactive user
+interface we want our code to react to
+changes for example when the user
+changes the quantity we want the code to
+react and 
+recalculate our totals if the
+user deletes one of the line items we
+want the totals to reflect that as well
+
+how do we react to changes?
+ 
+one
+option is to u
+se a getter in this
+example 
+we Define the extended price as
+a getter so when the quantity changes
+change detection kicks in the template
+regets the extended price and it gets
+the price times the new quantity
+
+alternatively we could use an 
+event here
+we have an 
+event handler
+ that is called
+from the template when the user changes
+the quantity in that event handler we
+recalculate the extended price
+this works for changes in this component
+but what 
+if the totals were in a
+separate total component 
+
+how would it
+know to update its totals ?
+
+that's where
+signals come in here we create the
+quantity as a signal then we create a
+computed signal that reacts and
+recalculates when the quantity signal
+changes
+
+here on the left is our original example
+and on the right similar code that uses
+signals we 
+create a signal x with a
+value of 5 of signal y with a value of 3
+and we create a 
+computed signal that is
+the sum of X and Y 
+
+if we change the X
+signal the Z computed signal
+automatically reacts and recalculates
+providing the new result
+
+if we bind to Z in the template
+angular's change detection kicks in and
+Z is updated in the template 
+ our
+components can now be more reactive
+as we just saw 
+
+signals 
+provide more
+reactivity 
+we can use signals to Define
+our application State basically the data
+in our application and we can reference
+those signals in our template so our
+template knows what data it depends on
+when that data changes angulars change
+detection knows it needs to re-render
+that part of the view this gives us
+
+finer control over change detection and
+can improve our application's
+performance
+
+
+
+What are signals?
+
+Signal = value + change notification
+
+
+signal
+ as a 
+Value 
++ 
+a change notification
+
+
+
+with imperative code when we declare a
+variable that a variable is available to
+any code within scope it's like putting
+that value on a shelf any code can look
+at that shelf and read the value but the
+value doesn't react to any other
+variable changes
+
+with signals when we declare a signal
+that 
+signal value is encapsulated it's
+like putting the value in a box
+
+when the signal changes the Box glows
+providing notification of the change 
+any
+code that references the signal is
+notified of the change and can react
+appropriately 
+
+if a template reads the
+signal that template is scheduled for
+re-rendering and the current value of
+the signal is displayed 
+
+
+{{ x }}   // Variable
+{{ x() }} // Signal
+
+let x = 5;
+console.log(x);
+
+let x = signal(5);
+console.log(x());
+
+
+notice the
+
+parentheses
+ when reading the signal 
+
+this
+calls the signal getter
+ to open the box
+so to speak and 
+read the value
+
+when you make updates to the model or
+data 
+angular automatically applies those
+changes to the corresponding view this
+enables a seamless and synchronized
+interaction between model and view
+allowing for a smooth user experience
+
+in the current versions of angular
+change detection uses Zone JS to keep
+the applications model in View and sync
+as we see more signal features in
+angular will be able to create
+components that 
+don't need Zone JS for
+change detection similar to how we use
+on push today we'll be able to use
+signals for finer control over change
+detection
+ 
+
+signals are reactive
+  provide a
+notification when their value changes
+making it easier for our code to react
+to those changes 
+
+a signal always has a value 
+we provide an initial value when
+creating the signal and we can change
+that value as we'll see shortly 
+
+a signal is 
+side effect free 
+meaning that 
+reading
+a signal can cause no other changes nor
+execute any other code
+
+so that's the why and the what now let's
+look at the Syntax for how to create a
+signal read a signal set a signal use
+signal methods Define a computed value
+and use an effect for side effects then
+we'll open an editor and demo these
+features
+
+
+How to create signals?
+
+Where to use signals?
+
+we can use
+them in 
+components to track local
+component State we can add them to a
+
+directive we can use them in a service
+to share State across components we can
+read them in a 
+template to display
+signal values and we can use them
+basically anywhere else in our code
+
+Creating a signal
+here is the Syntax for creating a signal
+
+quantity = signal<number>(1);
+
+this creates and initializes a signal
+using the signal Constructor function 
+it
+creates the signal of the defined type
+that type can be a 
+string 
+number 
+array
+object or any other type 
+
+setting the
+type is optional as signals can often in
+further type using the default value
+like in this example 
+
+
+
+qtyAvailable = signal([1, 2, 3, 4, 5, 6, 7, 8]);
+selectedVehicle = signal<Vehicle>({id: 1, name: 'AT-AT', price: 198.13});
+vehicles = signal<Vehicle[]>([]);
+
+
+if we didn't
+provide the type the signal would know
+it was a number 
+the default value is
+required 
+the signal must always have a
+valid value starting with this default
+
+here are some examples we create a
+numeric signal with a 
+default value of
+one 
+
+we create an array signal with a
+default array 
+
+we create a signal for a
+vehicle object and set its default value
+and 
+
+we create a signal for an array of
+vehicle objects here we set the default
+to an empty array
+
+
+
+a signal created with the signal
+Constructor function is 
+writable
+ the
+signal value can be 
+set to a new value
+updated based on its current value or
+its content can be 
+mutated for arrays or
+other objects 
+
+we'll see the Syntax for
+these operations in just a moment
+we read a signal by 
+calling its getter
+function 
+we use the signal name followed
+by empty parentheses this calls the
+signal getter so here we open the box so
+to speak by calling the getter and
+retrieve the current value of the signal
+
+quantity();
+
+
+
+here are some examples we can read a
+signal in our code in this example we're
+reading the value of the quantity signal
+to display it in the console this code
+runs once when the component is
+constructed we can read a signal in the
+template here 
+we use an 
+
+ngFor to display
+each element and our quantity available
+signal which is an array and here we use
+binding to read the selected vehicle
+signal and display the name and price
+properties
+
+
+<option *ngFor="let q of qtyAvailable()">
+    {{ q }}
+</option>
+
+
+reading a signal opens the box to get
+the current value technically speaking
+it's calling the signals getter function
+and it reads the current value of the
+signal the Box only contains its one
+
+Reading a signal
+current value
+
+Setting a signal
+we replace the value of a signal using
+the set function we start with the
+signal name call the set function and
+provide the new value
+
+here are some examples in the first
+scenario the user selects a quantity
+from a select element in the template
+when the selection changes the template
+calls the on quantity selected event
+handler the code then replaces the value
+of the quantity signal with the value
+selected by the user
+
+in this second example we set the
+selected vehicle signal to a different
+object
+
+setting a signal replaces the value in
+the box with a new value it 
+
+notifies any
+consumers that the signal changed and
+those 
+
+consumers update when it's their
+turn to execute a 
+consumer in this
+context is any code that's interested in
+notifications when the signal changes
+
+how does our code show it's interested
+and receiving notifications if the code
+reads a signal that code is notified
+when the signal changes if the template
+reads a signal that template is notified
+when the signal changes and the template
+will be re-rendered
+but it's important to note that 
+
+a signal
+does not emit values 
+so it isn't like an
+observable 
+
+here is an example this isn't
+very real world but this code could do
+something such as check a minimum
+quantity and reset to that minimum or
+check against a maximum quantity and
+reset to that maximum setting a new
+signal 
+replaces the signal value in the
+box and provides a notification  
+I've
+changed  I've changed  I've
+changed but if it changes multiple times
+before the value is read the consumers
+will only see the current or most recent
+value when it's time to re-render the
+template 
+
+The Binding reads the current
+value only it knows nothing about the
+prior signal values
+
+Signal methods: 
+set, update, mutate
+so we've looked at the set method which
+replaces the signal value with a new
+value
+use the 
+
+update
+ method to update the
+value based on its current value we
+provide an arrow function that passes in
+the current value we can then make any
+changes to that value here we multiply
+it by two 
+
+to change the content of a
+signal 
+not the signal itself use 
+mutate
+
+mutate updates the value of an array
+element or an 
+object property in place
+
+
+in this example we 
+update the vehicle's
+price to a new price
+each of these cases make some change to
+the value in the Box 
+
+notifies any
+consumers that the signal has changed
+and those consumers update or re-render
+as needed
+
+
+Defining a computed signal
+as we saw at the beginning with adding X
+and Y we can create a computed signal 
+
+a
+computed signal recomputes when its
+dependent signals change
+we call the 
+computed creation function
+and pass in a 
+computation function to
+compute the value in that computation
+function we 
+read the values of any
+dependent signals
+
+computed creates a new signal that
+depends on other signals 
+
+a computed
+signal is 
+read only it cannot be
+modified with set update or mutate 
+
+the
+computed value is recomputed when one or
+more of its dependent signals are
+changed and the value is read 
+
+the
+computed value is 
+memoized
+ meaning it
+stores the computed result that computed
+value is 
+reused next time the computed
+value is read
+
+for example say our template reads
+extended price in three places in the
+template 
+the computed value is only
+calculated once it 
+reuses that stored
+value for the other two times it's read
+
+
+
+Using an effect for side effects
+lastly we have effects use an effect 
+if
+you want to run some code when a signal
+changes and that code has side effects
+create an effect with the 
+effect creation function
+pass it a 
+function
+with the code to execute the code is
+then 
+re-executed when it's notified of a
+change to one of its dependent signals
+
+
+think of an effect like an 
+observable
+tap operator that 
+automatically
+subscribes to the signal 
+we can add the
+effect to a method such as a Constructor
+or we can call it declaratively
+calling in effect should not change the
+value in the Box the effect is run when
+one or more of its dependent signals is
+changed and it's this code's turn to
+execute
+again it's important to note that
+
+
+signals don't emit values so 
+if the
+signal is changed multiple times before
+an effects code can be executed 
+the
+effect will only read the current value
+the log will only display 42 in the
+console we'll see this in action in the
+upcoming demo
+
+
+
+14:02
+
+
+
+
+
+
+
+when should we use effects?
+ if we want to
+do logging as we've just seen in those
+examples or if we want to call external
+apis not including rxjs you'll find that
+you won't use effects very often
+before moving on let's take a moment and
+Signals and templates
+talk about signals and templates here is
+an example template we use a signal in
+the ngFor and in bindings for our vehicle
+name price and total price
+during template rendering reading a
+signal Returns the signal value it also
+registers the signal as a dependency of
+the view if the signal changes the view
+is re-rendered so the act of reading the
+signal registers that signal as a
+dependency of the view the view then
+knows that it should re-render when any
+of its dependent signals change
+Current state of signals
+in angular V16 signals are available as
+a developer preview t are integrated
+into the existing change detection model
+you can also use on push change
+detection if desired signals will mark
+on push components for check similar to
+how the async pipe works here are some
+suggestions for how to use signals
+Suggestions for how to use signals
+continue to use event handlers for user
+actions use a signal or computed for any
+state or data that could change put
+shared signals and services continue to
+use observables for async operations
+such as HTTP get there will be features
+to map signals to and from and
+observable
+Demo
+now let's move on to our demo we're
+going to use stack Blitz which is an
+online editor we're going to edit the
+package.json to V16 next so we can use
+these new features
+we can then refresh the dependencies and
+we can try it out check out the video
+notes below for the link to my stop
+Blitz let's jump into a demo
+I've opened stock Blitz using the link
+on the slides and I'm going to click a
+new angular project
+notice our dependencies are all
+currently angular v15 so we're going to
+go to the package.json file and we're
+going to change them all to V16 next
+at the time of this recording it was
+16.0.0 Dash next.4 it might be newer by
+the time you watch this video
+so I'm just going to paste that in for
+each one of these okay
+then we're going to save it which will
+automatically install those dependencies
+installation complete and it still works
+okay so we're going to go into Main and
+the first thing we're going to do is
+create our signal so we're going to call
+it quantity and we're going to make it a
+number but since we're assigning it to
+the value of 1 it will already know it's
+a number and it's going to tell us we
+can't find that so we can have it update
+our import and so now it's got the
+import here and if we hover over we see
+that it is a setable signal of number
+the next thing we want to do is display
+that quantity so let's go ahead and do
+that in our template so we can just
+change our header here we're going to
+call this our shopping cart
+and here we're just going to do a div
+and bind to our quantity now notice we
+get this weird
+thing displayed here on our shopping
+cart why is that because we're trying to
+display the signal we're not displaying
+the value of the signal we need to
+remember to open the box first in order
+to actually see the value and here's our
+value of 1.
+so we can also display the value in code
+so let's create a Constructor just so
+that we have a place to write some code
+and we're going to say console.log and
+we're going to log out our quantity so
+that's that quantity and again we have
+to remember our parents to open that box
+and to get that value out and we'll see
+here that we have a value of 1. the next
+thing we want to do is we want to try
+setting the quantity to something else
+so let's go ahead and add a select to
+save myself some typing I'm just going
+to paste it in and what this does is it
+has an NG model with our quantity and
+it's calling an on quantity selected
+method which it's telling us we don't
+have yet and we're binding to two things
+so we're binding to that quantity with
+our NG model and in our ngFor we're
+binding to an array which is our
+quantity available you know normally we
+would get this from an inventory system
+to know how many are available but we're
+going to hard code in an array so let's
+start with that I'm going to do an array
+we're going to call it quantity
+available and set it equal to a signal
+that is an array and we want to set the
+signal to one two three four five six
+quantity available now is a signal that
+is an array with with one through six in
+it so those will be the options that we
+have in our drop down the other thing we
+need is this on quantity selected and
+we're passing into that method the
+quantity and in our code here then we
+can change that quantity
+now it's complaining about NG model it
+always complains about that because NG
+model is part of forms so for that to
+work we need to import forms module and
+that does just like that
+all right now if you haven't seen it
+this uses Standalone components which
+was new in v15 as a preview in v15 if
+you're not familiar with it it just
+means that we can run without an angular
+module so if you notice here there is no
+angular module but that has nothing to
+do with signals you can completely do
+modules and the signals still work those
+two are two entirely separate and
+distinct features but here now we have
+our drop down and notice that it did
+correctly bind to our signal array that
+we have here and if we pick one you'll
+notice that it is correctly binding to
+that now notice that our console log
+here did not recognize that change
+that's because in the Constructor it
+only executes this code once so if we
+actually want to see it every time it's
+changed we could do that in a an effect
+so we can do a quantity effect and again
+you don't don't do these very often
+we're going to just do it so that we can
+do some debugging here would probably
+want to remove this when our code was
+actually done and I'm just going to
+paste in the console log to save myself
+some typing and we need to add this
+effect to our import so now we can see
+that it says the latest quantity is one
+if I pick a different value it now
+displays that the quantity is 3. okay so
+let's try something else let's go ahead
+and our code here and we're going to try
+setting the quantity to 5 and we're
+going to set it again
+242. that because that's because that's
+a magic number all right so when we
+change the quantity and it calls this on
+quantity selected it sets the quantity
+to six then to 5 then to 42 when this
+code is finished executing then the
+effect is executed and it only retrieves
+the last value the most recent value
+which is the 42. all right so we're
+going to comment that out all right so
+what else do we want to do let's try
+doing an update so let's say we're
+having a two for one sale and we want to
+in our Constructor when this comes up we
+want to update the quantity to twice the
+quantity so we can take this dot
+quantity and update it and it gives us
+the quantity and what we can do is take
+that quantity and multiply it by two
+so now you can see that it's defaulting
+to 2 here
+and if I pick something we can see that
+the last quantity now is four
+if I pick one
+it shows that the quantity is one so
+it's always showing us the most recent
+value that's set into our quantity
+signal
+now let's try creating a signal that's
+an object
+and I'm just going to paste mine and it
+wants the definition of what a vehicle
+is so I'm just going to stick it in here
+of course this would normally be in a
+service but we're just going to put our
+interface here for our vehicle and our
+vehicle consists of an ID which is a
+number or a name which is a string and
+price which is a number okay so now
+we're good with that so here is our
+vehicle as another example we can also
+create an array of vehicles which would
+be a signal of an array now here in this
+case it has no idea what kind of array
+that I want here this knew that it was a
+setable signal of number array but in
+this case it's any because it has no
+idea so in this case we might want to
+strongly type that and say that this
+array is going to be a v Circle
+array
+and now it will know its correct type
+and let's add a computed value up here
+we're going to calculate an extended
+price and that is going to be a computed
+and in the computed function we're going
+to say this dot selected vehicle we need
+to pull that out of the box because
+that's the signal so we need to do the
+open and closing parentheses we're going
+to take its price and multiply it by our
+quantity and again that's an error
+because we need to call the getter and
+pull it out of that box
+and for our computed we need to update
+the import
+let's add some more information to our
+template then I'm just going to paste
+that in prevent you from having to watch
+me type it all in but basically I added
+a div element for the vehicle name one
+for the price and then one for the total
+which is the extended price so that's
+our price times the quantity so you can
+see here that it it took my default
+signal value of 1 down here it updated
+that to be twice that so it's 2 when
+that was changed it recalculated the
+extended price and updated it on the
+template so now if we change it to three
+we'll see that it correctly calculated
+our total and if we change it to 5 it
+will again correctly calculate our total
+so the last thing that I want to show
+here is mutate we've already tried set
+and update so mutate is all that's left
+so here in our Constructor so we have a
+place to run the code we're going to say
+this dot
+selectedvehicle dot mutate because we
+want to update just part of what's in
+the selected vehicle and it's going to
+give us that vehicle and then we can do
+our Arrow function we're going to say we
+want to update the price and have it
+equal to the price plus price times 0.2
+kind of have an Interstellar price
+increase there on our vehicle so you can
+see that it correctly recalculated the
+price and the total automatically
+reacted and displayed the correct total
+there so we don't have any code that's
+needing to do anything to tell the UI to
+update we don't have to write Behavior
+subjects in here we don't have to do
+anything fancy we just create signals
+and then we're good to roll if you don't
+want to type all of this in you can just
+open my stack Blitz that has all of this
+code in it check out the video notes
+below for the link to that stock Blitz
+and have fun trying out signals
+thanks for watching if this video was
+useful please like And subscribe
+Angular Signals
+Deborah Kurata
+1 / 5
+
+Comments
+
+I'll add standalone APIs to my list! 
+
+Signals will improve responsiveness ... especially if you create signals for all of your bound properties and turn on OnPush change detection.
+
+In a future version of Angular, signals will improve responsiveness even further by allowing for "zone-less" change detection. (zone.js is what Angular currently uses for change detection)
+
+Small tip: in VS Code, and also in StackBlitz, when you want to replace the same value in multiple places (like you did for the Angular version), you can select one of the instances and press Shift + Ctrl + L --> it will select all of them. Then, as soon as you start typing the new value, it will be done at once, changing all that instances.
+
+I knew it worked in VS Code, I didn't realize that Stackblitz supported the feature as well. (I guess I should have known as I believe Stackblitz is VS Code on the inside.)
+
+Signal is value + notification change. 
+This will bring less boilerplate code with the internal reactive code of the component .instead of observable which requires subscription each time value is needed.
+
+But you'll probably still see Observables in services to handle http requests and other async operations.
+
+I see signals to be so similar to behavior subjects !! Does this mean Angular is eventually trying to get rid of zone.js?
+
+Yes ... eventually... that's one of the goals.
+
+How does it improves the changes detection strategy ?
+
+Angular's current change detection uses zone.js. There are several issues with zone.js as outlined here: https://github.com/angular/angular/discussions/49684
+
+Here's a snippet from the link:
+
+"The Zone approach isn't scalable.
+Zone is based on monkey-patching platform APIs like setTimeout, Promise.then, and addEventListener. This lets Angular know when something has happened in the browser, and we can then schedule change detection to synchronize the UI with any potential model changes.
+
+This approach has not scaled well. zone.js must be loaded before the application starts in order to patch its target APIs. This patching operation is not free, both in terms of bytes downloaded and milliseconds of load time. zone.js also has no idea which APIs the application will use, and must patch them just in case. As browsers add more and more APIs, the cost of this patching grows, as does the cost of maintaining zone.js.
+
+Another major issue is that some platform APIs, such as async / await, are not monkey-patchable at all, requiring awkward workarounds or forced down-leveling.
+
+While we can work to optimize zone.js and reduce these costs, we will never be able to eliminate them completely.
+
+Zones are the root cause of many common pain points in Angular.
+In looking back at 7+ years of Angular history and feedback, we've identified zone.js as a common root cause behind many developer experience or performance challenges.
+
+The infamous ExpressionChangedAfterItHasBeenChecked error is often the result of violating Angular's assumptions of how data will flow in your application. Angular assumes that your data will flow from top to bottom along the view hierarchy. This assumption is rooted in how zone.js separates model updates from UI reconciliation, resulting in the potential for "unsafe" model updates.
+
+Another issue we've noted is that zone.js can easily overreact to activity in an application, resulting in many unnecessary change detections. Often this results from third-party advertising, marketing, or analytics scripts being initialized in a way that runs their many timers or other actions in the Angular zone. In the worst cases, we've seen applications which do over 1,000+ change detections at startup. It's always possible to write code with performance problems, but zone.js makes it easy to create such issues unintentionally.
+
+Developers are opting in to more fine-grained reactivity today
+Many developers today use state management patterns or libraries that architect their data in a way where t can tell Angular exactly what changed. This usually takes the form of making components OnPush and using Observables together with the async pipe to mark components for check when state t depend on changes. Angular is capable of operating in this mode, but still relies on zone.js for top-down change detection. Thus, developers get some, but not all of the benefits of fine-grained reactivity, and still have to deal with the drawbacks of zone.js."
+
+
+what about unsubscrıbing? 
+Does ıt keep lıstening always: 
+when to use sıgnal or observable (RxJs)?  
+why Signal came up , because of less syntax?
+
+There is no "subscribe", so no need to "unsubscribe". The component signals will keep listening until the component is destroyed. If the signal is in a service, the service will keep listening until that service's injector is destroyed.
+
+Signals are primarily for managing change detection for the UI. So here's the flow:
+- User kicks off an operation (such as selecting a customer from a list).
+- Action is processed in an event handler (like it is now), something like onCustomerSelected() that is called via event binding in the template.
+- The action may kick off an async process in a service, such as retrieving data based on that Id. That will continue to be done with RxJS/Observables.
+- The resulting data could be returned from the service as a signal.
+- The signal is bound to the UI, so the data appears to the user.
+
+The only real difference from what we do now is that instead of the service returning an Observable<Customer>, it could return a Signal<Customer>. That could be bound directly in the UI instead of needing an async pipe.
+
+The first part of the video attempts to explain why ... to provide more reactive programming (computed() for example) and to provide improved change detection.
+
+Would Signals replace NgRx, or it is a completely different feature?
+
+Signals are completely different from NgRx. Though NgRx has been modified to take advantage of the new signals features.
+
+See this: https://dev.to/this-is-angular/signals-what-this-means-for-ngrx-eho
+
+
+what about the new life cycle hooks?
+
+I didn't cover them yet because AFAIK, t aren't all implemented yet. T are still in RFC (Request for Comment) stage.
+
+You can find out more about the proposed lifecycle changes here: https://github.com/angular/angular/discussions/49682 under the topic of "Component lifecycle and effects"
+
+NOTE: I did cover `effect()` in the video which is also discussed in this section.
+
+NOTE: Even though all of the lifecycle hooks are shown in the above referenced document as functions within the constructor, many of them can be defined declaratively as shown with the `effect()` in this video. 
+
+
+
+Yes, you can edit a YouTube video that you have uploaded, as long as you are signed in to your YouTube account. Here are the steps to edit your video:
+
+Sign in to your YouTube account and go to your channel's Video Manager.
+
+Find the video that you want to edit and click on the Edit button.
+
+You will be taken to the Video Editor, where you can trim, split, add or remove sections, add music, and make other changes to your video.
+
+After you have made your edits, click on the Save button to save the changes.
+
+Once you have saved the changes, the edited video will be processed and replaced on YouTube. Please note that the video URL and statistics associated with the video will remain the same.
+
+It's important to note that if your video has already been monetized, re-uploading an edited version may affect your monetization status. Also, if the video has been live for a while and has accumulated views, editing it may affect its search rankings and visibility. So, it's a good idea to carefully consider the changes you want to make before editing a video that has already been published.
+
+I see options to:
+- Trim & Cut
+- Blur
+- Audio
+- End screen
+- Info cards
+
+I don't see any option to actually add anything. So it looks like I could cut out the error, but not replace it with a correction. AFAIK, I can't even add a callout pointing to the typo.
+
+Since this error really doesn't impact the training in the video on signals, it doesn't seem worth trying to fix it. I did add it to a NOTE in the description.
+
+=
+
+i dont't get why only the last of the 3 '.set(value)' is detected by the effect.
+
+-
+
+JavaScript/TypeScript is single threaded. Only one set of code can run at a time.
+
+When the event handler code is running, it will continue running until the end. Since all of the event handler code ran before the effect code runs, the current value is the last value that was set.
+
+When the event handler code execution is complete, other code (such as the effect) can run. The effect is notified that a signal has changed, but is not given that changed value. Rather, when the effect executes, it reads the current value from the signal itself. 
+
+-
+
+Ok but i really thought that using 'set', 'update' or 'mutate' would trigger the effect prior (or parallel) to the next line of code. It would be totally reactive in this way. What do you mean by  the 'event handler code' : a function called next to the trigger of an event, or a general javascript mechanism ?
+
+-
+
+Since JavaScript is single threaded, it will finish executing any code in a function before it runs anything on the "callback queue".
+
+By "event handler code", I mean this: 
+  onQuantitySelected(qty: number) {
+    this.quantity.set(qty);
+
+    // Does not "emit" values, rather updates the value in the "box"
+    // The qtyEff effect will not be called until the next tick
+    // It only displays the latest value.
+    this.quantity.set(5);
+    this.quantity.set(42);
+  }
+
+-
+
+I found a cool JavaScript flow visualizer here: http://latentflip.com/loupe
+
+Try it out. Try changing the "on" event handler to include code like this:
+$.on('button', 'click', function onClick() {
+    setTimeout(function timer() {
+        console.log('You clicked the button!');    
+    }, 500);
+    
+    for (let x = 0; x < 10; x++) {
+        console.log(x);
+    }
+});
+
+You'll see it run through and queue up the setTimeout until the loop at the bottom is finished. THEN it will run the callback within the setTimeout and display "You clicked the button!".
+
+An effect() is run similarly.
+
+-
+
+Ok it displays "you clicked the button!" if we open the console. I searched for it on the web page. i have to keep in mind the "callback queue".
+
+=
+
+What: What motivates an RxJs expert to change to Signals?
+Why: Why does an RxJs expert exchange a powerful technology like Rxjs with just a getter/setter function what Signals really are?
+How: How can an RxJs expert be convinced to give away his swiss army knife for a hammer?
+
+
+Not sure what I said that gave you that impression? I have no plans to give up RxJS and Observables. You'll have to pry them from my cold, dead hands. 😀
+
+Signals are for sync operations. We are exchanging the async pipe with a bound signal. Anything async (like http requests and complex data manipulation) will still be RxJS.
+
+I didn't include the RxJS/Observables in this video because the `fromObservable` and `fromSignal` needed to display the Observable values in the UI aren't yet in place. I did get a "fake" version of those methods and have an example of signals with RxJS here: https://stackblitz.com/edit/angular-y9goji
+
+I plan to turn the above linked example into a separate video as soon as the `fromObservable` and `fromSignal` features are available in the v16 preview.
+
+
+
+What's happend woth RX and subscriber/observables then,Are Angular team going to get rid of them?
+
+Signals are synchronous and primarily for keeping our UI updated with changes to data in our component.
+
+RxJS/Observables are for asynchronous operations, such as retrieving data via http. That won't change and won't go away.
+
+There will be methods such as fromObservable() that will take an Observable and convert it to a signal for display in the UI.
+
+You can think of it more like that 
+signals will replace the async pipe. 
+Like the async pipe, the fromObservable() will automatically subscribe/unsubscribe to the Observable.
+
+
+
+
+

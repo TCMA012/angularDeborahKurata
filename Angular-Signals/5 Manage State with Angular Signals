@@ -1,0 +1,580 @@
+5 Manage State with Angular Signals
+Deborah Kurata
+Apr 26, 2023  Angular Signals
+The new Angular signals are well suited to effectively manage the data we retain in our code.
+
+We define state in our components to keep track of component-level data such as the user's desired sort order or current selected item.
+
+We define state in our services to retain data used throughout the application, such as the list of vehicles for sale or the contents of the user's shopping cart.
+
+When managing state, we often need to support CRUD (Create, Read, Update, Delete) operations on that data. In this video, we use signals to manage state, including CRUD operations.
+
+Starting in Angular v16, Angular developers can leverage the power of signals to create highly reactive applications. Signals provide a new way for our code to inform our templates that data has changed, offering more granular control over how and when updates are propagated with change detection. If you aren't familiar with signals, consider watching my introductory signals video first. You can find the link below.
+
+Sample code:
+
+Content
+00:00 Managing component and service state
+01:16 Sample application in action
+03:05 Managing state with RxJS Observables
+04:22 Managing state with signals
+05:09 Creating computed signals
+07:35 Performing CRUD operations
+10:56 Accessing signals from components
+11:20 Binding to signals
+12:05 Completing the changes
+13.21 Running to validate our changes
+14:00 Benefits of using signals to manage state
+
+Transcript
+Managing component and service state
+hey one key use of signals is to manage
+state in our angular applications before
+we jump into a demo let's clarify the
+concept of State
+
+state is basically data that we retain
+in our code often in variables defined
+as class properties 
+we Define state in
+our components to keep component level
+data such as the user's desired sort
+order or current selected item 
+
+we Define
+State and our services to 
+retain data
+used throughout the application such as
+the list of vehicles for sale or the
+content of the user's shopping cart in
+some cases 
+
+we need to support crud
+operations on that data 
+
+crud
+is 
+create 
+read 
+update
+ and 
+delete
+ so
+the user can create a cart update it
+that is ADD items to the cart or adjust
+the quantity and delete items from the
+cart in this video we'll do just that 
+
+if
+you are new to angular V16 signals 
+check
+out my introductory signals video you
+can find the link to that video in the
+upper right corner now or in the this
+video's notes 
+
+ here is
+Sample application in action
+my Star Wars vehicle sales application
+in a prior video linked above 
+we
+modified the cardItems component to
+create signals these signals manage the
+state for this component we have the
+valid quantities which we use to bind to
+a quantity drop down 
+here we manage the
+cardItems itself and 
+here we use a
+computed signal to calculate the
+extended price which is the selected
+quantity times the cost of the item 
+in
+this video we'll work on the cart
+service currently we're managing the
+cart State using observables 
+will change
+all of this code to use signals instead
+
+before we start modifying the code let's
+take a quick look at how the cart
+functionality works
+
+I'll run the application
+and here is the application in action
+click on vehicle list and we see our
+list of vehicles select a vehicle and
+the vehicle detail appears click on add
+to cart to add the selected vehicle to
+the cart notice that the menu shows the
+number of items in the cart
+
+select a second vehicle and click on add
+to cart to add another vehicle to the
+cart click on the cart menu and we see
+the items in our cart along with the
+cart total
+
+dropping down the quantity we see the
+list from our quantity array signal
+notice that when we select a new
+quantity the extended price shown here
+is the cost reacts to the change and
+recalculates as does our car totals
+and if we delete one of the items from
+our cart the cart totals recalculate now
+
+let's see how to manage our state using
+signals
+
+
+
+Managing state with RxJS Observables
+here is the cart service notice that
+it's implemented using rxjs and
+observables many of us use observables
+to manage state in our services 
+this is
+a bit challenging because 
+observables
+emit data and don't retain that data by
+default 
+this is different from signals
+that do hold on to that data value if we
+want to perform 
+crud operations with
+observables we need to 
+either use a
+
+BehaviorSubject which retains the last
+emitted item
+ or 
+use something like the
+scan operator which retains and provides
+the last emitted item
+
+ and lets us modify
+that item before emitting it again
+we need to find an action to tell the
+observable whether we are 
+adding an item
+to the cart 
+updating the item quantity
+or deleting an item from the cart 
+we
+then respond to that action modifying
+the cart when the cardItemss array emits
+we recalculate the subTotal and if that
+subTotal emits we recalculate the
+deliveryFee tax and totalPrice all
+using observables
+
+if you didn't follow all of that don't
+worry we're going to delete all of this
+code
+
+
+
+Managing state with signals
+let's start with a cart which is an
+array of cardItemss will create a signal
+cardItems equal signal and we'll add
+the import for the signal
+we'll 
+start with an 
+empty array as the
+initial value hovering over cardItems
+we see that it is of type never array
+that's not what we want let's strongly
+type the signal using the generic
+argument cardItems array and let's add a
+comment
+we no longer need this subject because
+the cardItems signal will provide
+notification when the cart changes and
+
+we don't need this cardItems observable
+so I'll delete that as well
+
+
+Creating computed signals
+but what about this subTotal observable
+any idea how to implement that with
+signals if you set a computed signal you
+are correct let's create a computed
+signal
+
+subTotal equal computed and we'll add
+the import for computed
+for the computed expression we'll copy
+the code from our observable Pipeline
+and paste it into our computed
+expression 
+I'll do a little reformatting
+then change items to our cardItems
+signal
+don't forget the parentheses to read the
+signal 
+this code reads the cardItems
+array signal 
+then uses the 
+array reduce
+method that method processes each array
+element in order passing in the return
+value from the calculation on the
+preceding element a in this example with
+the current element B in this example
+
+the first time that this method executes
+there is no value from the prior
+calculation so at the end here we
+provide an initial value of zero now we
+can delete the subTotal observable
+next we'll create a signal for the
+deliveryFee and yep we'll do that with
+a computed signal as well deliveryFee
+equal computed for the computed
+expression we'll read the subTotal
+signal 
+if that value is less than a
+hundred thousand credits the fee is 999
+credits 
+otherwise it's zero
+and we can delete this observable
+
+how about the tax 
+another computed
+signal tax equal computed for the
+computed expression 
+we'll copy the
+calculation from the observable pipeline
+paste it here and 
+change T to instead
+read our subTotal signal
+and we no longer need this observable
+and 
+
+lastly We'll add a computed signal
+for the price totalPrice equals
+computed
+in our computed expression we read the
+subTotal signal and add that to the
+delivery phase signal and the tax signal
+then delete this observable
+that looks pretty straightforward and
+easy to read we have our cart which is
+an array of cardItemss we have the
+subTotal deliveryFee tax and total
+price all as signals
+
+scrolling down 
+
+
+Performing CRUD operations
+but what about our crud
+operations adding to the cart removing
+items from the cart or updating the
+quantity in the cart
+instead of emitting into an observable
+to kick off a notification and
+recalculate like this code does will
+instead modify our signal the signal
+will automatically provide notification
+and all computed signals will
+recalculate
+
+let's start with the 
+add to cart method
+here we create a cardItems that includes
+the user selected vehicle and a 
+default
+quantity of one
+ and we provide an action
+of add we emit that value to our
+observable instead we'll now 
+add the
+item to our cardItemss array signal we
+don't need to worry about an action
+because the signals will provide
+notification
+to make an internal change to a Signal's
+value without changing the Signal's
+identity 
+
+use mutate 
+
+mutate is useful for
+modifying the content of an array or
+changing object properties 
+
+we'll call
+the cardItems signals mutate method in
+the mutate expression we push a new card
+item with the selected vehicle and a
+default quantity of one
+now we can 
+delete the code that calls
+next on the observable
+
+to remove an item from the card we want
+to use the 
+array filter method to filter
+out the deleted cardItems however the
+filter method doesn't update the
+existing array rather it 
+creates a new
+array so we'll use the 
+
+update method to
+modify the value of the signal based on
+the current value of that signal 
+in the
+update expression we use the array
+filter method and 
+only return the array
+items that don't have the same vehicle
+name as the deleted item 
+effectively
+creating a new array with all but the
+deleted item normally we would use IDs
+instead of names here 
+but this
+particular data has no IDs
+
+we no longer need this code so let's
+delete it
+
+lastly to update the quantity of the
+item in the cart we use the 
+array map
+method the 
+
+map method processes each
+item in the array to find and update the
+appropriate cardItems like the array
+filter method the 
+map method creates a
+new array 
+
+so we'll again call the 
+update
+method of the signal reference the
+signal call its update method in the
+update expression use the cardItems
+array map method for each item in the
+cart if the item has the vehicle name
+that matches the updated item we replace
+the item with the new item and quantity
+otherwise we return the original item
+again normally we would use IDs instead
+of the name
+
+now we can delete the code that uses the
+subject
+
+since we are handling the changes to our
+cardItemss array signal directly in
+these methods we don't need this
+additional method that modifies the cart
+so we can delete it scrolling up let's
+delete our unused Imports
+
+our service now exposes several signals
+that our components can use to access
+our state
+ 
+
+
+Accessing signals from components
+next we need to access these signals
+from our components 
+I'll open the card
+total component TS file
+will change each of these 
+observables to
+a signal instead our 
+cardItems$ becomes cardItems
+subTotal$ becomes subTotal 
+deliveryFee$ is now deliveryFee
+tax$ is tax 
+totalPrice$ is totalPrice
+ 
+
+
+Binding to signals
+we bind to these signals in the
+template which in this case is in the
+cart total component HTML file here at
+the top 
+instead of the async pipe will
+bind to the signal
+
+don't forget the opening and closing
+parentheses to read the signal value and
+since the signal always has a value we
+don't need the question mark here
+
+next we change each of our computed
+signals
+subTotal here
+deliveryFee which is referenced in this
+ngIf here this binding
+and this 
+ngIf down here
+then tax
+and totalPrice 
+
+our template now binds
+to our signals 
+
+
+
+Completing the changes
+but we're not quite
+finished our cart state is used in a few
+more places 
+I'll open the cart list
+component.ts file we'll change the
+reference to our 
+cardItems observable to our cardItems signal
+and 
+change the binding to read that
+signal 
+
+lastly recall that our menu
+displayed the quantity of items in our
+cart so I'll open the
+app.component.ts file 
+here we calculate
+the quantity 
+how do we change that to a
+signal 
+it's another 
+computed signal
+we'll create a cartCount computed signal 
+add the import
+and then the computed expression we read
+the signal from the service we then use
+the 
+arrays reduce method to total up the
+quantity of items in the cart
+then we can delete this observable and
+delete the unused Imports
+let's change the template as well open
+the app
+component.html file here we display the
+car quantity we'll change it to use the
+signal instead of the async pipe and
+let's add an ngIf so we only display the
+quantity if the value is set to a
+non-zero number
+that should be it let's give it a try
+I'll bring up the application click
+vehicle list to see the list of vehicles
+select a vehicle and click add to cart
+notice that our cart quantity is updated
+select another vehicle and click on add
+to cart and again our quantity is
+updated
+click on cart and we see our cart change
+the quantity on one of the items and all
+of our computed signals recalculate nice
+
+next let's try out the delete click X to
+delete one of the items from the cart
+and our totals adjust accordingly 
+
+
+
+Benefits of using signals to manage state
+going back to the cart service by using
+signals to manage our state we've
+simplified our code making it 
+easier to
+read modify and maintain 
+
+if you have any
+questions or would like to see a video
+on another signal topic please post
+those questions or suggestions in the
+comments thanks for watching and don't
+forget to like And subscribe
+Angular Signals
+Deborah Kurata
+5 / 5
+
+Comments
+
+you can press "shift + cmd + o"  execute the action "Optimize imports". This will remove the unused ones. And instead of clicking the little bulb for importing, you can press "cmd + ."
+
+what kind of vscode extrensions do You have to debug code? Could You share configuration? Actually Im struggling with it, switched to chrome source tab..
+
+I don't have any vscode extension for debugging the code. Rather, it's part of Angular's configuration.
+
+If you do an 
+ng new
+ with the latest version of the CLI, it generates the configuration you need to debug within vscode.
+
+=
+
+NgRx will still be useful when an application has complex state management. And NgRx has already begun to embrace signals. Check out a summary here: 
+https://dev.to/this-is-angular/signals-what-this-means-for-ngrx-eho
+
+=
+
+if there are any downsides to using signals in the template that were not explained. 
+
+Generally, it is known that using function calls in the template can cause performance issues. This is because if Angular detects an expression in the template that includes a function call, it needs to recalculate the function during every change detection cycle.
+
+I would like to know how this works in the case of signals. Is there any difference? Is it pure in some way, meaning that the signal function is not recalculated during every change detection cycle?
+
+-
+
+There are no downsides of using signals. 
+Signals are zero-argument functions, basically getters. 
+When executed, all they do is return the current value of the signal. 
+They have no side effects to worry about. And they don't execute any other code. So it's no different really then reading a property value.
+
+The performance gets even better if you bind only to signals and turn on OnPush change detection.
+
+=
+
+The new lifecycle hooks are not in the v16 release. AKAIK, the Angular team has not completed their plans/implementation on lifecycles. (And recently decided to keep more of the original lifecycle hooks than originally thought.)
+
+=
+
+how about saving the data to the backend. Will that be the time to use rxjs?
+
+You'd still use RxJS for the async save operation.
+
+How you save depends on your requirements.
+
+If you want to "auto save" after each operation, you could add the post, put, or delete directly in the add/update/delete methods.
+
+If you want the user to control the save via a save button, then you would call a save method in the service to perform the save.
+
+Depending on your backend, you could pass the entire array back to the backend. 
+Or you may need to add an "action" to the data array so that on the save the code can loop through the array and know which elements are new, which are updated, and which are marked for deletion.
+
+=
+
+to post request on server or put and delete on server. how the code will be affected
+
+-
+
+So for Auto Saving when User  add, update or delete Cart ,  I can subscribe to http post put and delete in service method add/update/delete and then once response comes back from server we can update cardItems signal accordingly.
+
+-
+
+Yes, that should work. I need to work on a CRUD example that does this. 
+Most of the "open source" end points (like this starwars one) don't allow updates. So I'll have to figure out where/how to set up an endpoint where I can do post/put/delete. 
+Or maybe try Angular's fake Web API?
+
+-
+
+a fake angular webapi or json-server
+
+=
+
+the Angular team has not yet defined testing strategies for signals.
+

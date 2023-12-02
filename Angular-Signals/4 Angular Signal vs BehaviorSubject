@@ -1,0 +1,338 @@
+4 Angular Signal vs BehaviorSubject
+Deborah Kurata
+Apr 20, 2023
+Angular Signals
+Signal vs RxJS BehaviorSubject. Fight! Just kidding. 😆
+
+In reality, there are use cases for both. In this video, we take a look at how to replace a synchronous BehaviorSubject stream with a signal.
+
+Starting in Angular v16, Angular developers can leverage the power of signals to create more reactive applications. Signals provide a new way for our code to inform our templates that data has changed, offering more granular control over how and when updates are propagated with change detection. If you aren't familiar with signals, consider watching my introductory signals video first. You can find the link below.
+
+Links
+Angular Signals: What, Why, and How?:    • Angular Signals: ...  
+
+How Angular Signals and RxJS Work Together:    • How Angular Signa...  
+
+Sample code:
+https://github.com/DeborahK/Angular-Signals/tree/main/swVehicles-with-vehicle-signals
+
+Content
+00:00 Signal vs BehaviorSubject ... Fight!
+00:37 Existing BehaviorSubject code
+01:44 Replacing the BehaviorSubject
+03:17 Updating the Input property
+04:33 Creating a computed signal
+05:27 Creating a signal for an array
+05:40 Binding to signals
+06:38 Running to validate our changes
+06:57 Why replace a BehaviorSubject with a signal?
+
+Transcript
+Signal vs BehaviorSubject ... Fight!
+hey on the one hand we have the tried
+and true BehaviorSubject and on the
+other hand we have the new signal
+features let's get ready to rumble
+just kidding in reality there are use
+cases for both in this video we'll take
+a look at how to replace a synchronous
+BehaviorSubject stream with a signal if
+you are new to angular V16 signals check
+out my introductory signals video you
+can find the link to that video in the
+upper right corner now or in this
+video's notes
+
+Existing BehaviorSubject code
+here is my Star Wars vehicle sales
+application in a prior video we modified
+the vehicle service to create signals
+from observables and observables from
+signals
+in this video we'll work with the cart
+feature and replace the BehaviorSubject
+here with a signal before we start
+modifying the card component code 
+let's
+take a quick look at how the cart
+functionality works I'll run the
+application
+and 
+here is our welcome page click on
+the vehicle list and we see our list of
+vehicles select a vehicle
+and the vehicle detail appears click on
+add to cart to add the selected vehicle
+to the cart click on the cart menu and
+we see the item in our cart along with
+the cart totals notice that when we
+select a new quantity the extended price
+shown here has cost reacts to the change
+and recalculates let's focus on the code
+for this card item
+here is the cart item component I'll
+Replacing the BehaviorSubject
+open the cart.ts file so we can see the
+interface definition for our cart and
+card item as expected 
+the cart is an
+array of cart items 
+a cart item includes
+a vehicle and the quantity
+
+looking at the cart list component we
+see that it's still using an observable
+we'll change the cart service from an
+observable to a signal in a later video
+when we talk about managing state with
+signals 
+
+for now notice the template we
+Loop through each card item create a
+cart item component and pass send the
+card item as an input property
+going back to the card item component
+here is that input property when the
+property is set it emits the Past end
+card item to our BehaviorSubject
+so our BehaviorSubject emits a card
+item anytime when is provided to this
+component 
+
+let's instead create a signal
+card item equal signal and 
+we'll add
+signal to the import 
+next we need to
+define a default a signal always has a
+value starting with a provided default
+we'll use the same default use for the
+BehaviorSubject 
+I'll copy it and paste
+it
+so now the two code lines for our
+BehaviorSubject become one line for our
+signal 
+let's delete these two lines and
+update our comment
+next we modify our input property Setter
+
+Updating the Input property
+to set the signal instead of emitting to
+the observable we'll call set to set the
+card item to the provided item we'll
+delete the code that references the
+observable note however that 
+there's a
+bug in angular version 16 rc1 that won't
+allow setting a signal in an input
+property this was fixed in rc2 
+note also
+that angular V16 will have signal-based
+inputs as of this recording they weren't
+yet implemented 
+I'll cover how to use
+signal-based inputs in a later video
+scrolling up let's delete our unused
+Imports 
+we are no longer using rxjs in
+this component
+scrolling back down in our two methods
+on quantity selected and on remove which
+removes an item from the cart 
+let's
+change the first argument instead of
+referencing our input property let's
+pass the value of our signal
+don't forget the parentheses to read the
+signal value
+but we still have an error reacting to
+our observable and calculating our
+extended price any idea how to fix that
+
+
+Creating a computed signal
+if you set a computed signal you are
+correct 
+we'll create a new signal called
+exPrice without the $
+ then called
+a computed creation function and we'll
+add the import
+for the computed expression 
+we'll read
+the card item signal again 
+don't forget
+the parentheses 
+we'll reference the
+quantity and multiply it by the cost of
+that vehicle 
+we'll again read the cart
+item signal reference the vehicle and
+reference the cost and credits property
+
+there's a little problem here in that
+the cost and credits is stored as a
+string so we'll use the 
+
+Number function
+to coerce the value into a number
+
+now we can delete our extended price
+observable and our errors are gone
+
+we now have two signals 
+our cart item
+and the computed extended price 
+
+what
+about our array here 
+
+
+
+Creating a signal for an array
+
+since we bind to
+this array in the template let's make
+that a signal as well
+
+we'll call the signal creation function
+and pass in this array as its initial
+value
+
+
+
+Binding to signals
+
+now that our component state is defined
+with signals 
+let's update the template
+to bind to those new signals
+here in the card item component HTML
+file instead of binding to the
+observable using the async pipe will
+bind to our signal
+and anywhere we reference the item we'll
+read our signal I'll select item .
+
+press 
+Ctrl shift L
+ to select all
+occurrences and change it to cart item
+parent
+and 
+
+press escape to finish
+
+scrolling down let's find where we're
+referencing our quantity array
+we're binding adhere to our select
+option
+the 
+ngFor now needs to read the signal
+instead
+
+scrolling down further lastly we'll
+modify the extended price to bind to our
+signal
+that's it 
+
+Running to validate our changes
+let's bring up the app and see
+if everything still works 
+click vehicle
+list to see the list of vehicles
+
+select a vehicle and click add to cart
+
+click on cart and we see our cart change
+the quantity and our extended price
+recalculates nice
+
+
+
+
+going back to the code we've
+successfully changed our synchronous
+BehaviorSubject to a signal and the
+code that reacts to card changes is now
+a computed signal
+
+
+
+Why replace a BehaviorSubject with a signal?
+
+simplified binding 
+we can bind
+directly to our signal 
+instead of using
+an async pipe 
+
+no need to subscribe
+signals don't require a subscription
+
+computed properties instead of reacting
+to emitted items from unobservable we
+instead create a computed property which
+is arguably a bit easier to read and
+understand
+
+
+improved change detection so this
+feature isn't implemented yet we can
+prepare by changing to signals now
+ensuring we're ready for a potential
+zoneless future
+
+looks like signals won this battle
+if you have any questions or would like
+to see a video on another signal topic
+please post those questions or
+suggestions in the comments thanks for
+watching and don't forget to like And
+subscribe
+Angular Signals
+Deborah Kurata
+4 / 5
+
+Comments
+
+If possible a future video on testing the Signals would be great addition to the series.
+
+Last I heard from the Angular team, they haven't yet worked on the testing story. I'll add it to the list and put something together when there is something ready.
+
+=
+
+how you would do most common operators with Signals when you have e.g. switchmap, map, combineLatest. Would you still use RxJS and forward the stream to the signal?
+
+Yes, you would still use RxJS for the pipeline. Then create a signal from the resulting Observable.
+
+I'll add to my list to do an example. 
+
+=
+
+I got the main reasons why to switch I think not needing 'subscribe' and async is really a good point. What I wonder is if there is hope they implement it so that we get those benefits of change detection when using RxJS as well?
+
+You can use OnPush change detection with RxJS now using the async pipe to get some of the benefits of improved change detection.
+
+I'm not certain what the plan for the async pipe will be in future versions (v17+). Whether they plan to include it in their new zoneless change detection or if they will phase it out.
+
+Is there a case when you'd really need an async pipe and can't create a signal from an Observable instead?
+
+=
+
+Can you include in your next videos this scenario: fetching data from API when we click on some button for example and managing this data in a service with signals ?
+
+=
+
+if there's a way to handle isLoading state when a signal is getting information from Observables.
+
+I'll work up an example of isLoading.
+
+=
+
+if I start using signals with my app, should be safe to change all my components to OnPush right ?
+
+And yes! Any component that does all it's binding with signals (or signals and RxJS) can be changed to OnPush.
+
+
